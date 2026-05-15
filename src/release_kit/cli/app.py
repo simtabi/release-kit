@@ -213,6 +213,99 @@ def doctor(
         raise typer.Exit(1)
 
 
+@app.command(name="bootstrap-repo")
+def bootstrap_repo(
+    config: CONFIG_OPT = Path("release.json"),
+    env_file: ENV_FILE_OPT = None,
+    apply: Annotated[
+        bool,
+        typer.Option("--apply", help="Apply repo settings. Default is dry-run."),
+    ] = False,
+) -> None:
+    """
+    Apply declarative repo settings (topics, etc.) per git-host target.
+
+    Dry-run by default. v0.1 supports GitHub topics; other hosts emit
+    a "skipped — not yet implemented" step so the report is uniform.
+    """
+    from ..workflows.bootstrap_repo import run_bootstrap
+
+    configure_logging("INFO")
+    load_env_file(env_file)
+    try:
+        cfg = Config.from_path(config)
+    except ReleaseKitError as e:
+        _emit_error(e)
+        raise typer.Exit(2) from e
+
+    report = run_bootstrap(cfg, apply=apply)
+    _print_run_report(report, dry_run=not apply)
+    if not report.ok:
+        raise typer.Exit(1)
+
+
+@app.command(name="rotate-tokens")
+def rotate_tokens(
+    platform: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--platform", "-p",
+            help="Platform slug(s) to rotate (repeatable). Default: prompt for each.",
+        ),
+    ] = None,
+    list_only: Annotated[
+        bool,
+        typer.Option("--list", help="Print the rotation table and exit."),
+    ] = False,
+) -> None:
+    """
+    Interactive token rotation.
+
+    For each selected platform: prints the management URL, prompts for
+    the new token (silent input), then stores it via the OS keyring.
+    Never echoes the value.
+    """
+    from ..workflows.rotate_tokens import (
+        ROTATION_TABLE,
+        apply_rotation,
+        get_rotation_step,
+    )
+
+    if list_only:
+        table = Table(title="release-kit rotate-tokens")
+        table.add_column("slug")
+        table.add_column("platform")
+        table.add_column("token URL")
+        table.add_column("env var")
+        for slug, step in ROTATION_TABLE.items():
+            table.add_row(slug, step.platform, step.token_management_url, step.env_var)
+        console.print(table)
+        return
+
+    selected = platform or list(ROTATION_TABLE.keys())
+    for slug in selected:
+        try:
+            step = get_rotation_step(slug)
+        except KeyError as e:
+            err_console.print(f"[red]{e}[/red]")
+            raise typer.Exit(2) from e
+        console.print(f"\n[bold]{step.platform}[/bold] ({slug})")
+        console.print(f"  URL: {step.token_management_url}")
+        if step.notes:
+            console.print(f"  note: {step.notes}")
+        new_value = typer.prompt(
+            f"  new token for {slug} (input hidden, blank to skip)",
+            default="",
+            hide_input=True,
+            show_default=False,
+        )
+        if not new_value:
+            console.print("  [yellow]skipped[/yellow]")
+            continue
+        apply_rotation(slug, new_value)
+        console.print(f"  [green]stored[/green] in OS keyring under release-kit:{slug}")
+
+
 @app.command()
 def publish(
     config: CONFIG_OPT = Path("release.json"),
