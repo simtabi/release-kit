@@ -6,6 +6,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+_No changes yet._
+
+## [0.1.0] — 2026-05-15
+
 ### Added
 
 - Project scaffold: pyproject.toml + hatchling build, Typer CLI,
@@ -60,3 +64,6 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Provenance / SBOM as a first-class config block.
 - conda-forge feedstock automation.
 - Parallel-publish across targets.
+
+[Unreleased]: https://github.com/simtabi/release-kit/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/simtabi/release-kit/releases/tag/v0.1.0
