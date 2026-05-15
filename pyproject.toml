@@ -84,7 +84,8 @@ Changelog     = "https://github.com/simtabi/release-kit/blob/main/CHANGELOG.md"
 
 # Plugin discovery: third parties can add platforms without forking.
 [project.entry-points."release_kit.platforms"]
-pypi   = "release_kit.platforms.registries.pypi:PyPI"
+pypi       = "release_kit.platforms.registries.pypi:PyPI"
+dockerhub  = "release_kit.platforms.registries.dockerhub:DockerHub"
 
 [tool.hatch.build]
 include = [
