@@ -1,5 +1,10 @@
 # simtabi-release-kit
 
+[![CI](https://github.com/simtabi/release-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/simtabi/release-kit/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/simtabi-release-kit.svg)](https://pypi.org/project/simtabi-release-kit/)
+[![Python](https://img.shields.io/pypi/pyversions/simtabi-release-kit.svg)](https://pypi.org/project/simtabi-release-kit/)
+[![License](https://img.shields.io/github/license/simtabi/release-kit.svg)](LICENSE)
+
 Multi-registry publishing automation. One config file, one command,
 every registry your project needs.
 
