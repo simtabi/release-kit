@@ -70,6 +70,7 @@ dev = [
   "mypy>=1.10",
   "pre-commit>=3.7",
   "types-PyYAML",
+  "jsonschema>=4.21",   # validates the bundled release-kit.schema.json
 ]
 
 [project.scripts]
