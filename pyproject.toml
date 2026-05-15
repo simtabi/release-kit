@@ -91,6 +91,10 @@ npm        = "release_kit.platforms.registries.npm:Npm"
 homebrew   = "release_kit.platforms.registries.homebrew:Homebrew"
 github     = "release_kit.platforms.git_hosts.github:GitHub"
 gitlab     = "release_kit.platforms.git_hosts.gitlab:GitLab"
+gitlab-registry = "release_kit.platforms.registries.gitlab_registry:GitLabRegistry"
+aws-ecr    = "release_kit.platforms.registries.aws_ecr:AWSElasticContainerRegistry"
+gar        = "release_kit.platforms.registries.gar:GoogleArtifactRegistry"
+acr        = "release_kit.platforms.registries.acr:AzureContainerRegistry"
 
 [tool.hatch.build]
 include = [
