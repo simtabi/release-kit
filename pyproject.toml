@@ -86,6 +86,11 @@ Changelog     = "https://github.com/simtabi/release-kit/blob/main/CHANGELOG.md"
 [project.entry-points."release_kit.platforms"]
 pypi       = "release_kit.platforms.registries.pypi:PyPI"
 dockerhub  = "release_kit.platforms.registries.dockerhub:DockerHub"
+ghcr       = "release_kit.platforms.registries.ghcr:GHCR"
+npm        = "release_kit.platforms.registries.npm:Npm"
+homebrew   = "release_kit.platforms.registries.homebrew:Homebrew"
+github     = "release_kit.platforms.git_hosts.github:GitHub"
+gitlab     = "release_kit.platforms.git_hosts.gitlab:GitLab"
 
 [tool.hatch.build]
 include = [
