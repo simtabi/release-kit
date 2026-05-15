@@ -14,11 +14,11 @@ worked on this session. Each package was checked against:
 
 ## Summary
 
-| Package | Repo | Local tag | PyPI | CI | Status |
-|---|---|---|---|---|---|
-| `simtabi-release-kit` | `simtabi/release-kit` | `v0.1.0` | `0.1.0` ✓ | green | ✓ shipped |
-| `ai-configurator` | `simtabi/claude-configs` | `v0.4.2` | **not published** | green | ⚠ release blocked |
-| `get-installer` | `simtabi/get-installer` | `v0.3.0` | **not published** | green | ⚠ release blocked |
+| Package | Repo | Local tag | PyPI dist name | PyPI | CI | Status |
+|---|---|---|---|---|---|---|
+| `simtabi-release-kit` | `simtabi/release-kit` | `v0.1.0` | `simtabi-release-kit` | `0.1.0` ✓ | green | ✓ shipped |
+| `ai-configurator` | `simtabi/ai-configurator` (renamed from `claude-configs`) | `v0.4.2` | `aicfg` (changed from `ai-configurator`) | **not published** | green | ⚠ release blocked |
+| `get-installer` | `simtabi/get-installer` | `v0.3.0` | `get-installer` | **not published** | green | ⚠ release blocked |
 
 Two packages have valid tags but never reached PyPI because their
 release workflows were broken when they fired. Both workflows now
@@ -102,9 +102,10 @@ forever-queued `ubuntu-24.04-arm` runner).
 
 | Package | What | Why |
 |---|---|---|
-| `ai-configurator` | Configure PyPI trusted publisher on `simtabi/claude-configs` workflow `release.yml`, environment `pypi`, project `ai-configurator` | Both v0.4.1 and v0.4.2 release runs failed at the PyPI upload step. Tags exist locally + on origin; re-trigger by cutting v0.4.3 or manually re-running the workflow once publisher is set. |
-| `get-installer` | Configure PyPI trusted publisher on `simtabi/get-installer` workflow `release.yml`, environment `pypi`, project `get-installer` | v0.3.0 release run failed; the underlying release.yml bugs are now fixed but the next tag push needs trusted-publisher configured. |
-| Both | Cut next-patch tag (`v0.4.3` and `v0.3.1`) once trusted publisher is configured | Tags `v0.4.2` and `v0.3.0` are already pushed, but the workflow's prior failure means re-running them via the `gh workflow run` re-dispatch path. Easiest path forward: bump the patch + tag. |
+| `aicfg` | Configure PyPI trusted publisher: Owner `simtabi`, Repo `ai-configurator`, Workflow `release.yml`, Environment `pypi`, **PyPI Project `aicfg`** | The dist name is `aicfg` (not `ai-configurator`); v0.4.1 + v0.4.2 release runs failed at the PyPI upload step. Re-run by cutting `v0.4.3` once publisher is set. |
+| `get-installer` | Configure PyPI trusted publisher: Owner `simtabi`, Repo `get-installer`, Workflow `release.yml`, Environment `pypi`, PyPI Project `get-installer` | v0.3.0 release run failed; the underlying release.yml bugs are now fixed (release workflow + Dockerfile bugs in commits `9a1a627`, `56c3bfd`, `2c694da`, `3277326`, `d9b9868`). |
+| Both | Cut next-patch tag (`v0.4.3` for aicfg, `v0.3.1` for get-installer) once trusted publisher is configured | Tags `v0.4.2` and `v0.3.0` are already pushed but their old release runs failed and won't be re-fired. Easiest path: bump the patch + tag + push. |
+| `simtabi/claude-configs` (old repo) | Decide what to do with the renamed-from repo | GitHub keeps the old name as an auto-redirect alias once the rename completes, but the legacy commits (one extra commit `b01bef3` for action bumps) are still on its `main`. Options: archive it, hard-delete, or leave the redirect alias in place (which is what GitHub does by default after rename). |
 
 ## Gates that all 3 packages now pass
 
