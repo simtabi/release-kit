@@ -64,7 +64,9 @@ This repository ships:
 | Version | 0.1.0 |
 | Python | ≥ 3.11 |
 | Platforms (playbook) | 26 platforms documented |
-| Platforms (code) | PyPI fully implemented; remaining fan out in v0.1 line per ADR-008 |
+| Platforms (code) | 25 platforms registered (16 registries + 8 git hosts + 1 sub-class via inheritance) |
+| Tests | 158 passing, 76% coverage (gate 70%) |
+| Type-check | `mypy --strict` clean on 47 source files |
 
 ## Configuration
 
@@ -109,9 +111,9 @@ JSON Schema (machine-readable): `src/release_kit/schema/release-kit.schema.json`
 | `release-kit init` | Scaffold `release.json` + `.env-example` in the current dir |
 | `release-kit doctor` | Per-target readiness check (green / amber / red) |
 | `release-kit publish [--target NAME ...] [--apply]` | Run the publish flow |
-| `release-kit bootstrap-repo [--apply]` | Apply topics + branch protection per config |
-| `release-kit verify <target>` | Confirm an artifact is live on a target |
-| `release-kit rotate-tokens <platform>` | Interactive token rotation helper |
+| `release-kit bootstrap-repo [--apply]` | Apply topics (+ branch protection in v0.2) per config |
+| `release-kit verify [--target NAME ...]` | Run each target's verify step to confirm artifacts are live |
+| `release-kit rotate-tokens [--platform SLUG ...] [--list]` | Interactive token rotation helper |
 | `release-kit version` | Print version |
 
 Full reference: [`docs/cli.md`](docs/cli.md).

@@ -23,7 +23,7 @@ Two deliverables shipped together:
 | Platform plugin files (git hosts) | 8 | `ls src/release_kit/platforms/git_hosts/*.py \| grep -v __init__ \| wc -l` |
 | Source files (mypy --strict) | 47 | `find src -name "*.py" \| wc -l` |
 | Test files | 18 | `find tests -name "test_*.py" \| wc -l` |
-| Test cases | 155 | `pytest --collect-only -q \| tail -1` |
+| Test cases | 158 | `pytest --collect-only -q \| tail -1` |
 | Doc files | 72 | `find docs -name "*.md" \| wc -l` |
 | Playbook pages | 33 | `find docs/playbook -name "*.md" \| wc -l` |
 | ADRs | 14 | `wc -l docs/decisions.md` |
@@ -33,7 +33,7 @@ Two deliverables shipped together:
 All gates green on Python 3.13 (the dev venv), targeting Python 3.11+.
 
 ```bash
-.venv/bin/python -m pytest          # 155 passed, 75.95% coverage (gate 70%)
+.venv/bin/python -m pytest          # 158 passed, 76.05% coverage (gate 70%)
 .venv/bin/python -m ruff check .    # all checks passed
 .venv/bin/python -m mypy src        # success, no issues in 47 source files
 ```
@@ -71,8 +71,8 @@ Empty output = all good.
 - [x] Configuration via `release.json` + bundled JSON Schema.
 - [x] Pluggable platform discovery via
       `release_kit.platforms` entry-point group.
-- [x] Six CLI verbs (init, doctor, publish, bootstrap-repo,
-      rotate-tokens, version).
+- [x] Seven CLI verbs (init, doctor, publish, verify,
+      bootstrap-repo, rotate-tokens, version).
 - [x] Three workflow composition modules (publish, bootstrap_repo,
       rotate_tokens) usable independent of the CLI.
 - [x] 25 platforms registered: 16 registries + 8 git-host plugins +
@@ -90,9 +90,6 @@ Empty output = all good.
 
 - Branch protection + environment / required-reviewer flows in
   `bootstrap-repo` (today only topics are applied for GitHub).
-- The `verify` CLI verb (each platform's `verify` method already
-  works inside the publish flow; standalone CLI exposure is a
-  cosmetic add).
 - A web dashboard / GitHub Action for unattended scheduled
   rotations.
 - Provenance/SBOM emission as a first-class config block. Today

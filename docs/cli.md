@@ -63,6 +63,23 @@ Dry-run is the default and runs every step end-to-end without
 calling registries / git hosts. Exits non-zero if any target's
 flow failed.
 
+## `release-kit verify`
+
+Run each target's `verify` step in isolation. Useful after a
+publish to confirm propagation, or as a periodic liveness check.
+
+```bash
+release-kit verify [--target NAME ...] [--config PATH]
+```
+
+| Flag | Default | Purpose |
+|---|---|---|
+| `--target` | every enabled | Restrict to these slugs. Repeatable. |
+
+Skips authenticate / validate / publish. Always runs against the
+real registry (no dry-run mode — verify is read-only by design).
+Exits non-zero when any target's `verify()` returns `status="failed"`.
+
 ## `release-kit bootstrap-repo`
 
 Apply declarative repo settings (topics, etc.) per git-host target.
