@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/simtabi/release-kit/blob/main/src/release_kit/schema/release-kit.schema.json",
+  "title": "simtabi-release-kit configuration",
+  "description": "Root config consumed by release-kit. Loaded as release.json by default; layered with env vars + CLI flags at runtime.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["project"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Pointer to this schema file. Optional but recommended."
+    },
+    "project": {
+      "$ref": "#/$defs/project"
+    },
+    "targets": {
+      "type": "object",
+      "description": "Per-platform targets keyed by platform slug (pypi, npm, ghcr, ...).",
+      "additionalProperties": { "$ref": "#/$defs/target" }
+    },
+    "policies": {
+      "$ref": "#/$defs/policies"
+    }
+  },
+  "$defs": {
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "Project identifier; usually matches the registry's distribution name."
+        },
+        "version_source": {
+          "type": "string",
+          "enum": ["pyproject.toml", "package.json", "Cargo.toml", "pom.xml", "git-tag"],
+          "default": "pyproject.toml",
+          "description": "Where to read the version string from."
+        },
+        "version_file": {
+          "type": ["string", "null"],
+          "description": "Custom path when version_source is a non-standard file. Ignored otherwise."
+        }
+      }
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "enabled": { "type": "boolean", "default": true },
+        "auth": {
+          "type": "string",
+          "enum": ["oidc", "token", "cli", "none"],
+          "default": "oidc",
+          "description": "Preferred auth method. release-kit refuses to fall back from OIDC to TOKEN without policies.allow_token_auth=true."
+        }
+      },
+      "description": "Per-target configuration. Platform-specific keys (image, registry URL, etc.) are passed through as extra properties."
+    },
+    "policies": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "require_clean_git": { "type": "boolean", "default": true },
+        "require_tag_match": { "type": "boolean", "default": true },
+        "require_signed_tag": { "type": "boolean", "default": false },
+        "require_changelog":  { "type": "boolean", "default": true },
+        "continue_on_error":  { "type": "boolean", "default": false },
+        "default_dry_run":    { "type": "boolean", "default": true },
+        "allow_token_auth":   { "type": "boolean", "default": false }
+      }
+    }
+  }
+}
