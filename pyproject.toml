@@ -76,8 +76,8 @@ dev = [
 release-kit = "release_kit.cli.app:app"
 
 [project.urls]
-Homepage      = "https://github.com/simtabi/release-kit"
-Documentation = "https://github.com/simtabi/release-kit/tree/main/docs"
+Homepage      = "https://opensource.simtabi.com/products/release-kit"
+Documentation = "https://opensource.simtabi.com/documentation/release-kit"
 Repository    = "https://github.com/simtabi/release-kit"
 Issues        = "https://github.com/simtabi/release-kit/issues"
 Changelog     = "https://github.com/simtabi/release-kit/blob/main/CHANGELOG.md"
