@@ -119,7 +119,8 @@ def _try_keyring(key: str) -> str | None:
     except ImportError:  # pragma: no cover
         return None
     try:
-        return keyring.get_password(KEYRING_SERVICE, key)
+        value: str | None = keyring.get_password(KEYRING_SERVICE, key)
+        return value
     except Exception as e:  # pragma: no cover
         _log.debug("keyring-lookup-failed", key=key, error=str(e))
         return None
@@ -136,6 +137,7 @@ def set_keyring(key: str, value: str) -> None:
     @param  value  the secret.
     """
     import keyring
+
     keyring.set_password(KEYRING_SERVICE, key, value)
     _log.info("keyring-set", key=key, preview=redact_token(value))
 
@@ -147,6 +149,7 @@ def delete_keyring(key: str) -> None:
     Idempotent: missing entry is not an error.
     """
     import keyring
+
     try:
         keyring.delete_password(KEYRING_SERVICE, key)
         _log.info("keyring-delete", key=key)

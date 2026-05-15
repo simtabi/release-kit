@@ -35,9 +35,7 @@ def test_authenticate_missing_token(clean_env: None) -> None:
     assert exc.value.code == "token-not-found"
 
 
-def test_authenticate_ok_with_numeric_id(
-    clean_env: None, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_authenticate_ok_with_numeric_id(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("GITLAB_TOKEN", "glpat_x")
     out = _plat(project_id=42).authenticate(_ctx())
     assert out.status == "ok"
@@ -51,9 +49,7 @@ def test_publish_dry_run() -> None:
 
 
 @respx.mock
-def test_publish_url_encodes_project_path(
-    clean_env: None, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_publish_url_encodes_project_path(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("GITLAB_TOKEN", "glpat_x")
     route = respx.post("https://gitlab.com/api/v4/projects/g%2Fp/releases").mock(
         return_value=httpx.Response(201, json={"name": "v1"})

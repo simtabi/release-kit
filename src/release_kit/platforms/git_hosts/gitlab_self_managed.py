@@ -27,7 +27,8 @@ class GitLabSelfManaged(GitLab):
     slug: ClassVar[str] = "gitlab-self-managed"
     automation_level: ClassVar[AutomationLevel] = AutomationLevel.OIDC_API
     supported_auth_methods: ClassVar[tuple[AuthMethod, ...]] = (
-        AuthMethod.OIDC, AuthMethod.TOKEN,
+        AuthMethod.OIDC,
+        AuthMethod.TOKEN,
     )
 
     def __post_init__(self) -> None:

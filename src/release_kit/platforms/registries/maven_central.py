@@ -52,7 +52,8 @@ class MavenCentral(Registry):
         self._user = user_res.value
         self._token = token_res.value
         return StepOutcome(
-            step="authenticate", status="ok",
+            step="authenticate",
+            status="ok",
             detail=f"user={user_res.source} token={token_res.source}",
         )
 
@@ -72,12 +73,16 @@ class MavenCentral(Registry):
 
         if ctx.dry_run:
             return StepOutcome(
-                step="publish", status="dry-run",
+                step="publish",
+                status="dry-run",
                 detail=f"would run: {' '.join(argv)}",
             )
         try:
             run_command(
-                argv, dry_run=False, check=True, timeout=900.0,
+                argv,
+                dry_run=False,
+                check=True,
+                timeout=900.0,
                 env={
                     "ORG_GRADLE_PROJECT_mavenCentralUsername": getattr(self, "_user", "") or "",
                     "ORG_GRADLE_PROJECT_mavenCentralPassword": getattr(self, "_token", "") or "",

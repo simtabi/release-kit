@@ -96,9 +96,7 @@ def test_validate_dist_present_ok(tmp_path: Path, monkeypatch: pytest.MonkeyPatc
 # --- publish (dry-run only; we never invoke real twine in unit tests) ------
 
 
-def test_publish_dry_run_does_not_execute(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_publish_dry_run_does_not_execute(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.chdir(tmp_path)
     (tmp_path / "dist").mkdir()
     (tmp_path / "dist" / "x-0.1.0.tar.gz").write_bytes(b"")
@@ -136,9 +134,7 @@ def test_verify_404_raises() -> None:
 @respx.mock
 def test_verify_5xx_raises() -> None:
     plat = _make_pypi(project_name="srv-error")
-    respx.get("https://pypi.org/pypi/srv-error/json").mock(
-        return_value=httpx.Response(503)
-    )
+    respx.get("https://pypi.org/pypi/srv-error/json").mock(return_value=httpx.Response(503))
     with pytest.raises(VerifyError) as exc:
         plat.verify(_ctx())
     assert exc.value.code == "verify-bad-status"

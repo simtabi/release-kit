@@ -23,9 +23,7 @@ class GitLabApiMixin:
 
     api_base: str = "https://gitlab.com"
 
-    def _client(
-        self, ctx: RunContext, *, env_var: str = "GITLAB_TOKEN"
-    ) -> httpx.Client:
+    def _client(self, ctx: RunContext, *, env_var: str = "GITLAB_TOKEN") -> httpx.Client:
         """
         Build an httpx.Client with auth + base URL.
 

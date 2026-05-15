@@ -11,6 +11,7 @@ repos:
       - id: check-added-large-files
         args: [--maxkb=500]
       - id: detect-private-key
+        exclude: '\.env-example$'   # placeholder values for docs, not real keys
       - id: mixed-line-ending
         args: [--fix=lf]
 
@@ -31,6 +32,7 @@ repos:
           - structlog>=24.1
           - types-PyYAML
         args: [--strict, --ignore-missing-imports]
+        files: '^src/'
 
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.5.0

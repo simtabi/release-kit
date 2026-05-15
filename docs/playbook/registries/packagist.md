@@ -35,12 +35,14 @@ Reference: `composer require <vendor>/<package>`.
    trigger refresh.
 2. **API token + manual `update-package` call** — for repos
    without webhook integration:
+
    ```bash
    # bash
    curl -XPOST -H'content-type:application/json' \
      "https://packagist.org/api/update-package?username=$USER&apiToken=$TOKEN" \
      -d'{"repository":{"url":"https://github.com/simtabi/php-pkg"}}'
    ```
+
 3. **Manual "Update" button** on the package page — for occasional
    one-off refreshes.
 

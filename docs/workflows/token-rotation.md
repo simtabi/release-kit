@@ -77,7 +77,7 @@ slot name doesn't match. Re-run `release-kit rotate-tokens
 
 Every token resolution emits a structlog event with the **source**:
 
-```
+```text
 INFO  resolve-token  source=keyring:release-kit:pypi
 ```
 

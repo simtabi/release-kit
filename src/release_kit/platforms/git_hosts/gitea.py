@@ -62,7 +62,8 @@ class Gitea(GitHost):
             )
         self._token = resolution.value
         return StepOutcome(
-            step="authenticate", status="ok",
+            step="authenticate",
+            status="ok",
             detail=f"{self._owner}/{self._repo} on {self._host}",
         )
 
@@ -82,7 +83,8 @@ class Gitea(GitHost):
         }
         if ctx.dry_run:
             return StepOutcome(
-                step="publish", status="dry-run",
+                step="publish",
+                status="dry-run",
                 detail=f"would POST {path} with tag={self._tag}",
             )
         try:

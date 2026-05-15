@@ -122,7 +122,7 @@ class GitHubApiMixin:
         json: dict[str, object] | None = None,
         *,
         env_var: str = "GITHUB_TOKEN",
-    )  -> dict[str, object] | None:
+    ) -> dict[str, object] | None:
         """PUT + optional JSON body. 204 returns None."""
         with self._client(ctx, env_var=env_var) as client:
             r = client.put(path, json=json)

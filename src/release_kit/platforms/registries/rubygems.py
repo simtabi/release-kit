@@ -29,7 +29,8 @@ class RubyGems(Registry):
     slug: ClassVar[str] = "rubygems"
     automation_level: ClassVar[AutomationLevel] = AutomationLevel.OIDC_API
     supported_auth_methods: ClassVar[tuple[AuthMethod, ...]] = (
-        AuthMethod.OIDC, AuthMethod.TOKEN,
+        AuthMethod.OIDC,
+        AuthMethod.TOKEN,
     )
 
     def __post_init__(self) -> None:
@@ -46,7 +47,9 @@ class RubyGems(Registry):
                 remediation="Set targets.rubygems.gemspec = '<name>.gemspec'.",
             )
         if self.target.auth == "oidc":
-            return StepOutcome(step="authenticate", status="ok", detail="OIDC trusted publisher path")
+            return StepOutcome(
+                step="authenticate", status="ok", detail="OIDC trusted publisher path"
+            )
         resolution = resolve_token("rubygems", env_var=self._env_var)
         if not resolution.resolved:
             raise AuthenticationError(
@@ -55,7 +58,8 @@ class RubyGems(Registry):
             )
         self._api_key = resolution.value
         return StepOutcome(
-            step="authenticate", status="ok",
+            step="authenticate",
+            status="ok",
             detail=f"api key from {resolution.source}",
         )
 
@@ -71,7 +75,8 @@ class RubyGems(Registry):
         build_argv = ["gem", "build", self._gemspec]
         if ctx.dry_run:
             return StepOutcome(
-                step="publish", status="dry-run",
+                step="publish",
+                status="dry-run",
                 detail=f"would build + push {self._gemspec}",
             )
         try:
@@ -99,6 +104,7 @@ class RubyGems(Registry):
         if r.status_code != 200:
             raise VerifyError(f"rubygems API returned {r.status_code}", code="verify-bad-status")
         return StepOutcome(
-            step="verify", status="ok",
+            step="verify",
+            status="ok",
             detail=f"{self._gem_name}=={r.json().get('version')}",
         )

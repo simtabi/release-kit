@@ -43,15 +43,13 @@ def test_npm_github_ok(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None
     assert out.status == "ok"
 
 
-def test_npm_github_npmrc_lines(
-    clean_env: None, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_npm_github_npmrc_lines(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("GITHUB_TOKEN", "ghp_x")
     plat = _build(NpmGitHubPackages, scope="@simtabi")
     plat.authenticate(_ctx())
     lines = plat._npmrc_lines(_ctx())
-    assert any("npm.pkg.github.com"  in line for line in lines)
-    assert any("@simtabi:registry"  in line for line in lines)
+    assert any("npm.pkg.github.com" in line for line in lines)
+    assert any("@simtabi:registry" in line for line in lines)
 
 
 # --- npm-gitlab ----------------------------------------------------------
@@ -69,11 +67,9 @@ def test_npm_gitlab_ok(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None
     assert out.status == "ok"
 
 
-def test_npm_gitlab_npmrc_has_project_id(
-    clean_env: None, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_npm_gitlab_npmrc_has_project_id(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("GITLAB_NPM_TOKEN", "glpat_x")
     plat = _build(NpmGitLabRegistry, scope="@g", project_id=42)
     plat.authenticate(_ctx())
     lines = plat._npmrc_lines(_ctx())
-    assert any("projects/42"  in line for line in lines)
+    assert any("projects/42" in line for line in lines)

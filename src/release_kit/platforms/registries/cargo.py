@@ -46,13 +46,16 @@ class CratesIo(Registry):
             )
         self._token = resolution.value
         return StepOutcome(
-            step="authenticate", status="ok", detail=f"token from {resolution.source}",
+            step="authenticate",
+            status="ok",
+            detail=f"token from {resolution.source}",
         )
 
     def validate(self, ctx: RunContext) -> StepOutcome:
         if not Path(self._manifest).is_file():
             raise AuthenticationError(
-                f"{self._manifest} not found", code="no-manifest",
+                f"{self._manifest} not found",
+                code="no-manifest",
             )
         return StepOutcome(step="validate", status="ok", detail=self._manifest)
 
@@ -60,13 +63,15 @@ class CratesIo(Registry):
         argv = ["cargo", "publish", "--manifest-path", self._manifest]
         if ctx.dry_run:
             return StepOutcome(
-                step="publish", status="dry-run",
+                step="publish",
+                status="dry-run",
                 detail=f"would run: {' '.join(argv)} --dry-run",
             )
         try:
             run_command(
                 argv,
-                dry_run=False, check=True,
+                dry_run=False,
+                check=True,
                 env={"CARGO_REGISTRY_TOKEN": getattr(self, "_token", "")},
             )
         except Exception as e:
@@ -87,6 +92,7 @@ class CratesIo(Registry):
         if r.status_code != 200:
             raise VerifyError(f"crates.io returned {r.status_code}", code="verify-bad-status")
         return StepOutcome(
-            step="verify", status="ok",
+            step="verify",
+            status="ok",
             detail=f"{self._crate_name}=={r.json().get('crate', {}).get('max_version')}",
         )

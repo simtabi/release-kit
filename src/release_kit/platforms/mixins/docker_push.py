@@ -91,10 +91,14 @@ class DockerPushMixin:
                 ) from e
 
         build_argv: list[str] = [
-            "docker", "buildx", "build",
-            "--platform", ",".join(self._platforms),
+            "docker",
+            "buildx",
+            "build",
+            "--platform",
+            ",".join(self._platforms),
             "--push",
-            "--file", self._dockerfile,
+            "--file",
+            self._dockerfile,
         ]
         for tag in tags:
             build_argv.extend(["--tag", self._image_reference(tag)])

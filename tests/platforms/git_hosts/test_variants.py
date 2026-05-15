@@ -34,9 +34,7 @@ def _build(cls, **extras):
 # --- GHEC ------------------------------------------------------------------
 
 
-def test_ghec_inherits_github_flow(
-    clean_env: None, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_ghec_inherits_github_flow(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("GITHUB_TOKEN", "ghp_x")
     out = _build(GitHubEnterpriseCloud, repo="o/r").authenticate(_ctx())
     assert out.status == "ok"
@@ -45,9 +43,7 @@ def test_ghec_inherits_github_flow(
 # --- GHES ------------------------------------------------------------------
 
 
-def test_ghes_host_sets_api_base(
-    clean_env: None, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_ghes_host_sets_api_base(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("GITHUB_TOKEN", "ghp_x")
     plat = _build(GitHubEnterpriseServer, repo="o/r", host="github.example.com")
     assert plat.api_base == "https://github.example.com/api/v3"
@@ -58,9 +54,7 @@ def test_ghes_host_sets_api_base(
 # --- GitLab self-managed ---------------------------------------------------
 
 
-def test_gitlab_self_managed_host(
-    clean_env: None, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_gitlab_self_managed_host(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("GITLAB_TOKEN", "glpat_x")
     plat = _build(GitLabSelfManaged, project="g/p", host="gitlab.example.com")
     assert plat.api_base == "https://gitlab.example.com"
@@ -84,9 +78,7 @@ def test_bitbucket_ok(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @respx.mock
-def test_bitbucket_publish_404_raises(
-    clean_env: None, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_bitbucket_publish_404_raises(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("BITBUCKET_APP_PASSWORD", "p")
     plat = _build(BitbucketCloud, workspace="w", repo="r", username="u", tag="v1")
     plat.authenticate(_ctx())
@@ -109,7 +101,9 @@ def test_bitbucket_dc_missing_host(clean_env: None) -> None:
 
 def test_bitbucket_dc_ok(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("BITBUCKET_DC_TOKEN", "t")
-    out = _build(BitbucketDataCenter, host="bb.example.com", project="P", repo="r").authenticate(_ctx())
+    out = _build(BitbucketDataCenter, host="bb.example.com", project="P", repo="r").authenticate(
+        _ctx()
+    )
     assert out.status == "ok"
 
 
@@ -129,9 +123,7 @@ def test_gitea_ok(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @respx.mock
-def test_gitea_publish_apply(
-    clean_env: None, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_gitea_publish_apply(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("GITEA_TOKEN", "t")
     plat = _build(Gitea, host="codeberg.org", owner="o", repo="r", tag="v1")
     plat.authenticate(_ctx())
@@ -152,9 +144,7 @@ def test_azure_devops_missing_config(clean_env: None) -> None:
     assert exc.value.code == "missing-config"
 
 
-def test_azure_devops_validate_needs_sha(
-    clean_env: None, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_azure_devops_validate_needs_sha(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("AZURE_DEVOPS_PAT", "p")
     plat = _build(AzureDevOps, organization="o", project="p", repo="r", tag="v1")
     plat.authenticate(_ctx())
@@ -163,13 +153,14 @@ def test_azure_devops_validate_needs_sha(
     assert exc.value.code == "missing-sha"
 
 
-def test_azure_devops_validate_ok(
-    clean_env: None, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_azure_devops_validate_ok(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("AZURE_DEVOPS_PAT", "p")
     plat = _build(
         AzureDevOps,
-        organization="o", project="p", repo="r", tag="v1",
+        organization="o",
+        project="p",
+        repo="r",
+        tag="v1",
         commit_sha="abc123def456",
     )
     plat.authenticate(_ctx())

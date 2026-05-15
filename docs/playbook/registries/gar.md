@@ -15,6 +15,7 @@ Image reference: `<region>-docker.pkg.dev/<project>/<repo>/<image>:<tag>`.
 1. Have a GCP project (`gcloud projects create`).
 2. Enable the API: `gcloud services enable artifactregistry.googleapis.com`.
 3. Create a Docker repo:
+
    ```bash
    # bash
    gcloud artifacts repositories create my-repo \
@@ -22,6 +23,7 @@ Image reference: `<region>-docker.pkg.dev/<project>/<repo>/<image>:<tag>`.
      --location=us-central1 \
      --description="Container images"
    ```
+
 4. Note the registry hostname: `us-central1-docker.pkg.dev`.
 
 ## Authentication options (ranked: most secure → least)

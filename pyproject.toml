@@ -151,6 +151,11 @@ select = [
 ]
 ignore = ["E501"]  # line-length handled separately
 
+[tool.ruff.lint.per-file-ignores]
+# clean_env is a setup-only fixture intentionally named without _
+# prefix so it's visible at test call sites as a setup marker.
+"tests/conftest.py" = ["PT004"]
+
 [tool.mypy]
 python_version = "3.11"
 strict = true

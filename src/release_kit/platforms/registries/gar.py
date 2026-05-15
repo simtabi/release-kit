@@ -60,7 +60,8 @@ class GoogleArtifactRegistry(DockerPushMixin, Registry):
                 ),
             )
         return StepOutcome(
-            step="authenticate", status="ok",
+            step="authenticate",
+            status="ok",
             detail=f"registry={self._registry}; project={self._project}; auth via gcloud auth configure-docker",
         )
 

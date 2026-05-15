@@ -41,6 +41,7 @@ with the same API).
 ### OIDC trusted publisher (GitHub Actions)
 
 PyPI side:
+
 1. Go to your project's page → **Manage → Publishing**.
 2. **Add a new publisher** under "Trusted publishers":
    - Owner: `simtabi` (your GitHub org)
@@ -51,6 +52,7 @@ PyPI side:
 3. Click **Add**.
 
 GitHub side:
+
 1. Repo → **Settings → Environments → New environment** → name
    `pypi`. Add "Required reviewers" if you want a human gate.
 2. Add `.github/workflows/release.yml`:
@@ -116,6 +118,7 @@ twine upload dist/*
 ```
 
 Or with `~/.pypirc`:
+
 ```ini
 # bash
 # ~/.pypirc -- chmod 600

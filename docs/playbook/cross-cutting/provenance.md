@@ -31,6 +31,7 @@ With provenance:
 ### Sigstore (`cosign` / `gitsign`)
 
 Free, keyless, public-log-backed signing. Adopted by:
+
 - npm (provenance, since 2023)
 - PyPI (attestations, PEP 740, since 2024)
 - Docker (Notary v2 / Sigstore for OCI artifacts)
@@ -54,6 +55,7 @@ jobs:
 ```
 
 Verify:
+
 ```bash
 # bash
 npm view <pkg> --json | jq .dist.attestations
@@ -66,6 +68,7 @@ Automatic when you publish via OIDC trusted publisher and the
 `attestations: true`.
 
 Verify:
+
 ```bash
 # bash
 pip download --no-deps simtabi-release-kit
@@ -90,6 +93,7 @@ sigstore verify identity \
 ```
 
 Verify:
+
 ```bash
 # bash
 cosign verify ghcr.io/simtabi/example:<tag> \
@@ -129,6 +133,7 @@ mvn deploy -Dgpg.passphrase="$GPG_PASSPHRASE"
 ```
 
 Store the **private key** and **passphrase** as separate CI secrets:
+
 - `GPG_PRIVATE_KEY` = output of `gpg --export-secret-keys --armor $KEYID`
 - `GPG_PASSPHRASE` = the passphrase
 

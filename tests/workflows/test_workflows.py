@@ -67,9 +67,7 @@ def test_publish_continue_on_error_proceeds_to_next(clean_env: None) -> None:
         project=ProjectConfig(name="x"),
         targets={
             "missing": TargetConfig.model_validate({"enabled": True, "auth": "token"}),
-            "pypi": TargetConfig.model_validate(
-                {"enabled": True, "auth": "oidc", "package": "x"}
-            ),
+            "pypi": TargetConfig.model_validate({"enabled": True, "auth": "oidc", "package": "x"}),
         },
         policies=PolicyConfig(continue_on_error=True),
     )
@@ -84,9 +82,7 @@ def test_publish_continue_on_error_proceeds_to_next(clean_env: None) -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_bootstrap_dry_run_github_topics(
-    clean_env: None, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_bootstrap_dry_run_github_topics(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("GITHUB_TOKEN", "ghp_x")
     cfg = _make_config(
         github={
@@ -127,9 +123,7 @@ def test_bootstrap_apply_calls_topics_endpoint(
     assert route.called
 
 
-def test_bootstrap_skips_non_github_hosts(
-    clean_env: None, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_bootstrap_skips_non_github_hosts(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
     """gitlab is a GitHost too but bootstrap is gated to GitHub for v0.1."""
     monkeypatch.setenv("GITLAB_TOKEN", "glpat_x")
     cfg = _make_config(
@@ -150,9 +144,7 @@ def test_bootstrap_no_topics_emits_no_topics_step(
     clean_env: None, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setenv("GITHUB_TOKEN", "ghp_x")
-    cfg = _make_config(
-        github={"enabled": True, "auth": "token", "repo": "o/r", "tag": "v1.0.0"}
-    )
+    cfg = _make_config(github={"enabled": True, "auth": "token", "repo": "o/r", "tag": "v1.0.0"})
     report = run_bootstrap(cfg, apply=False)
     steps = report.target_outcomes["github"]
     # Only authenticate runs; no topics step (topics list empty).
@@ -208,8 +200,6 @@ def test_apply_rotation_writes_to_keyring(monkeypatch: pytest.MonkeyPatch) -> No
 def test_apply_rotation_unknown_platform_raises(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setattr(
-        "release_kit.workflows.rotate_tokens.set_keyring", lambda k, v: None
-    )
+    monkeypatch.setattr("release_kit.workflows.rotate_tokens.set_keyring", lambda k, v: None)
     with pytest.raises(KeyError, match="no rotation guidance"):
         apply_rotation("does-not-exist", "x")

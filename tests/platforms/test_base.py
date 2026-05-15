@@ -31,6 +31,7 @@ def test_auth_method_enum_values() -> None:
 def test_registry_is_platform_subclass() -> None:
     """The marker subclasses are themselves classes, not just type aliases."""
     from release_kit.platforms.base import Platform
+
     assert issubclass(Registry, Platform)
     assert issubclass(GitHost, Platform)
 
@@ -40,12 +41,14 @@ def test_load_platform_classes_finds_pypi() -> None:
     classes = load_platform_classes()
     assert "pypi" in classes
     from release_kit.platforms.registries.pypi import PyPI
+
     assert classes["pypi"] is PyPI
 
 
 def test_pypi_class_attributes() -> None:
     """PyPI declares the expected level + auth methods."""
     from release_kit.platforms.registries.pypi import PyPI
+
     assert PyPI.slug == "pypi"
     assert PyPI.automation_level == AutomationLevel.OIDC_API
     assert AuthMethod.OIDC in PyPI.supported_auth_methods

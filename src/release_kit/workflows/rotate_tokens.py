@@ -117,8 +117,7 @@ def get_rotation_step(platform: str) -> RotationStep:
     """Look up the rotation guidance for a platform slug."""
     if platform not in ROTATION_TABLE:
         raise KeyError(
-            f"no rotation guidance for {platform!r}; "
-            f"known: {sorted(ROTATION_TABLE)}"
+            f"no rotation guidance for {platform!r}; " f"known: {sorted(ROTATION_TABLE)}"
         )
     return ROTATION_TABLE[platform]
 

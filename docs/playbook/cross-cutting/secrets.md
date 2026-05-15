@@ -83,6 +83,7 @@ publish-pypi:
 ```
 
 Set `PYPI_TOKEN` at **Settings → CI/CD → Variables**:
+
 - Type: `Variable`
 - **Protected**: ✅ (only protected refs / tags)
 - **Masked**: ✅
@@ -188,6 +189,7 @@ grep -q '^\.env$' .gitignore || echo "MISSING: add .env to .gitignore"
 
 `release-kit rotate-tokens <platform>` walks an interactive
 rotation:
+
 1. Open the registry's token-management page in the user's browser.
 2. Prompt for the new token.
 3. Update the OS keyring entry.

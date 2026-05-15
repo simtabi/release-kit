@@ -36,9 +36,7 @@ def test_rotate_tokens_list_prints_table() -> None:
 
 
 def test_rotate_tokens_unknown_platform_exits_2() -> None:
-    res = runner.invoke(
-        app, ["rotate-tokens", "--platform", "does-not-exist"], input="\n"
-    )
+    res = runner.invoke(app, ["rotate-tokens", "--platform", "does-not-exist"], input="\n")
     assert res.exit_code == 2
 
 
@@ -49,9 +47,7 @@ def test_rotate_tokens_blank_input_skips(monkeypatch: pytest.MonkeyPatch) -> Non
     def fake_apply(slug: str, value: str) -> None:
         called["slug"] = slug
 
-    monkeypatch.setattr(
-        "release_kit.workflows.rotate_tokens.apply_rotation", fake_apply
-    )
+    monkeypatch.setattr("release_kit.workflows.rotate_tokens.apply_rotation", fake_apply)
     res = runner.invoke(app, ["rotate-tokens", "--platform", "pypi"], input="\n")
     assert res.exit_code == 0
     assert "skipped" in res.stdout
@@ -66,9 +62,7 @@ def test_bootstrap_repo_dry_run_no_targets(tmp_path: Path) -> None:
 
 def test_verify_unknown_target_exits_2(tmp_path: Path) -> None:
     cfg = _write_config(tmp_path, {})
-    res = runner.invoke(
-        app, ["verify", "--config", str(cfg), "--target", "does-not-exist"]
-    )
+    res = runner.invoke(app, ["verify", "--config", str(cfg), "--target", "does-not-exist"])
     assert res.exit_code == 2
 
 
@@ -82,9 +76,7 @@ def test_verify_disabled_target_skipped(tmp_path: Path) -> None:
     assert "disabled" in res.stdout
 
 
-def test_verify_dockerhub_no_image_skipped(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_verify_dockerhub_no_image_skipped(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """Dockerhub.verify returns 'skipped' when no image is configured."""
     monkeypatch.setenv("DOCKERHUB_TOKEN", "dckr_pat_x")
     cfg = _write_config(
@@ -96,9 +88,7 @@ def test_verify_dockerhub_no_image_skipped(
     assert "SKIPPED" in res.stdout
 
 
-def test_bootstrap_repo_dry_run_github(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_bootstrap_repo_dry_run_github(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("GITHUB_TOKEN", "ghp_x")
     cfg = _write_config(
         tmp_path,

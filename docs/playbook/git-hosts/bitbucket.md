@@ -58,6 +58,7 @@ Trust policy `sub` claim:
 ### App password (manual fallback)
 
 Account Settings → **App passwords → Create**:
+
 - Label: `release-kit-publish`
 - Permissions: Repositories: Write; Pipelines: Edit variables
 - Copy the password (shown once).

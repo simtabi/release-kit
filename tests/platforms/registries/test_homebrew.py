@@ -45,9 +45,7 @@ def test_authenticate_ok(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> No
     assert out.status == "ok"
 
 
-def test_validate_missing_sdist_url(
-    clean_env: None, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_validate_missing_sdist_url(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("TAP_GITHUB_TOKEN", "ghp_x")
     plat = _plat(tap="o/r", formula="f")
     with pytest.raises(AuthenticationError) as exc:

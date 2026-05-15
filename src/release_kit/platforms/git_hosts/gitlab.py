@@ -108,5 +108,7 @@ class GitLab(GitLabApiMixin, GitHost):
                 env_var=self._env_var,
             )
         except Exception:
-            return StepOutcome(step="verify", status="failed", detail=f"release {self._tag} not found")
+            return StepOutcome(
+                step="verify", status="failed", detail=f"release {self._tag} not found"
+            )
         return StepOutcome(step="verify", status="ok", detail=f"name={body.get('name')}")

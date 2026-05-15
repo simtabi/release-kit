@@ -63,7 +63,8 @@ class AzureDevOps(GitHost):
             )
         self._pat = resolution.value
         return StepOutcome(
-            step="authenticate", status="ok",
+            step="authenticate",
+            status="ok",
             detail=f"{self._org}/{self._project}/{self._repo}",
         )
 
@@ -75,7 +76,9 @@ class AzureDevOps(GitHost):
                 "commit_sha required (Azure DevOps tag-ref needs the target SHA)",
                 code="missing-sha",
             )
-        return StepOutcome(step="validate", status="ok", detail=f"tag={self._tag} sha={self._sha[:12]}")
+        return StepOutcome(
+            step="validate", status="ok", detail=f"tag={self._tag} sha={self._sha[:12]}"
+        )
 
     def publish(self, ctx: RunContext) -> StepOutcome:
         path = f"/repositories/{self._repo}/refs?api-version=7.1"
@@ -88,7 +91,8 @@ class AzureDevOps(GitHost):
         ]
         if ctx.dry_run:
             return StepOutcome(
-                step="publish", status="dry-run",
+                step="publish",
+                status="dry-run",
                 detail=f"would POST tag ref {self._tag} -> {self._sha[:12]}",
             )
         try:

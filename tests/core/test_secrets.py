@@ -59,6 +59,7 @@ def test_preview_redacts_value(clean_env: None, monkeypatch: pytest.MonkeyPatch)
 def test_resolution_is_frozen() -> None:
     """TokenResolution dataclass is immutable (frozen=True)."""
     from dataclasses import FrozenInstanceError
+
     r = TokenResolution(value="x", source="env:X", preview="x***")
     with pytest.raises(FrozenInstanceError):
         r.value = "y"  # type: ignore[misc]

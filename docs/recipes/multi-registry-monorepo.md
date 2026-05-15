@@ -5,7 +5,7 @@ trick: one `release.json` per package, plus a matrix job in CI.
 
 ## Layout
 
-```
+```text
 my-monorepo/
 ├── packages/
 │   ├── core/        Python lib → PyPI

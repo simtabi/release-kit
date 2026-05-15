@@ -153,6 +153,7 @@ def run_command(
     full_env = None
     if env is not None:
         import os
+
         full_env = {**os.environ, **env}
 
     try:

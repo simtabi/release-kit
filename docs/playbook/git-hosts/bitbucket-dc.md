@@ -41,6 +41,7 @@ OIDC is **not** supported by Bitbucket Data Center as of 2025.
 ### Per-repository Access Token
 
 UI: Repository → Settings → **Access tokens → Create**:
+
 - Token name: `release-kit-publish`
 - Permissions: Project read, Repo write
 - Expiry: 6 months
@@ -66,6 +67,7 @@ curl -fsSL -XPOST \
 ### CI/CD (Bamboo / Jenkins / external runner)
 
 Bitbucket Data Center doesn't have a built-in CI runner. Pair with:
+
 - **Bamboo** (Atlassian's self-hosted CI)
 - **Jenkins** with the Bitbucket Server plugin
 - **GitHub Actions** triggered by a Bitbucket webhook (cross-host)

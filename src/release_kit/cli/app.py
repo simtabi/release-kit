@@ -55,7 +55,8 @@ _log = get_logger(__name__)
 CONFIG_OPT = Annotated[
     Path,
     typer.Option(
-        "--config", "-c",
+        "--config",
+        "-c",
         help="Path to release.json (default: ./release.json).",
         exists=False,
     ),
@@ -127,9 +128,7 @@ def init(
 
     # Ensure .env is gitignored.
     gi_lines = (
-        gitignore_path.read_text(encoding="utf-8").splitlines()
-        if gitignore_path.exists()
-        else []
+        gitignore_path.read_text(encoding="utf-8").splitlines() if gitignore_path.exists() else []
     )
     if ".env" not in gi_lines:
         gi_lines.append(".env")
@@ -174,7 +173,9 @@ def doctor(
     for name, tgt in cfg.targets.items():
         cls = classes.get(name)
         if cls is None:
-            table.add_row(name, "(unknown)", "—", "[red]RED[/red]", f"no plugin registered for {name!r}")
+            table.add_row(
+                name, "(unknown)", "—", "[red]RED[/red]", f"no plugin registered for {name!r}"
+            )
             any_red = True
             continue
         if not tgt.enabled:
@@ -201,7 +202,9 @@ def doctor(
         except ReleaseKitError as e:
             detail = str(e).splitlines()[0]
             status = (
-                "[red]RED[/red]" if e.code in {"token-not-found", "no-dist"} else "[yellow]AMBER[/yellow]"
+                "[red]RED[/red]"
+                if e.code in {"token-not-found", "no-dist"}
+                else "[yellow]AMBER[/yellow]"
             )
             if "RED" in status:
                 any_red = True
@@ -249,7 +252,8 @@ def rotate_tokens(
     platform: Annotated[
         list[str] | None,
         typer.Option(
-            "--platform", "-p",
+            "--platform",
+            "-p",
             help="Platform slug(s) to rotate (repeatable). Default: prompt for each.",
         ),
     ] = None,
@@ -492,6 +496,7 @@ def _bundled_env_example() -> str:
     # template that lives at the repo root. When packaged, we copy
     # it into the resources tree (see pyproject.toml::tool.hatch.build).
     from importlib import resources
+
     try:
         ref = resources.files("release_kit") / "schema" / ".env-example"
         if ref.is_file():

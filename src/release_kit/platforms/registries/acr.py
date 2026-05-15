@@ -57,7 +57,8 @@ class AzureContainerRegistry(DockerPushMixin, Registry):
                 code="missing-image",
             )
         return StepOutcome(
-            step="authenticate", status="ok",
+            step="authenticate",
+            status="ok",
             detail=f"registry={self._registry}.azurecr.io; auth via az acr login",
         )
 

@@ -66,6 +66,7 @@ bundled JSON Schema at
 authorized PAT, or you hit the secondary rate limit.
 
 **Fix**:
+
 - Confirm the PAT has `Contents: Write` for releases, `Metadata:
   Read` for topics.
 - If the org enforces SSO, click "Configure SSO" on the token in

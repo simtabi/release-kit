@@ -60,9 +60,7 @@ def run_bootstrap(config: Config, *, apply: bool = False) -> RunReport:
         try:
             outcomes.append(plat_obj.authenticate(ctx))
         except Exception as e:
-            outcomes.append(
-                StepOutcome("authenticate", "failed", str(e).splitlines()[0], error=e)
-            )
+            outcomes.append(StepOutcome("authenticate", "failed", str(e).splitlines()[0], error=e))
             report.target_outcomes[name] = outcomes
             report.failures.append(outcomes[-1])
             if not config.policies.continue_on_error:
@@ -89,9 +87,7 @@ def run_bootstrap(config: Config, *, apply: bool = False) -> RunReport:
                             StepOutcome("topics", "ok", f"applied {len(topics)} topic(s)")
                         )
                     except PlatformError as e:
-                        outcomes.append(
-                            StepOutcome("topics", "failed", str(e), error=e)
-                        )
+                        outcomes.append(StepOutcome("topics", "failed", str(e), error=e))
                         report.failures.append(outcomes[-1])
         else:
             outcomes.append(

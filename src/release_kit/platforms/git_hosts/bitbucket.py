@@ -34,7 +34,8 @@ class BitbucketCloud(GitHost):
     slug: ClassVar[str] = "bitbucket"
     automation_level: ClassVar[AutomationLevel] = AutomationLevel.FULL_API
     supported_auth_methods: ClassVar[tuple[AuthMethod, ...]] = (
-        AuthMethod.BASIC, AuthMethod.TOKEN,
+        AuthMethod.BASIC,
+        AuthMethod.TOKEN,
     )
 
     _api_base = "https://api.bitbucket.org/2.0"
@@ -69,7 +70,8 @@ class BitbucketCloud(GitHost):
             )
         self._password = resolution.value
         return StepOutcome(
-            step="authenticate", status="ok",
+            step="authenticate",
+            status="ok",
             detail=f"{self._workspace}/{self._repo} as {self._username}",
         )
 
@@ -89,7 +91,8 @@ class BitbucketCloud(GitHost):
         path = f"/repositories/{self._workspace}/{self._repo}/refs/tags/{self._tag}"
         if ctx.dry_run:
             return StepOutcome(
-                step="publish", status="dry-run",
+                step="publish",
+                status="dry-run",
                 detail=f"would verify tag {self._tag} on {self._workspace}/{self._repo}",
             )
         try:

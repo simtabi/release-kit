@@ -166,4 +166,5 @@ Cache propagation: ~1-2 hours from upload to `repo1.maven.org`.
 ## See also
 
 - [Central Portal docs](https://central.sonatype.org/publish/publish-portal-guide/)
-- [`../cross-cutting/provenance.md`](../cross-cutting/provenance.md) — GPG isn't Sigstore; Maven's signing is its own world.
+- [`../cross-cutting/provenance.md`](../cross-cutting/provenance.md) — GPG isn't Sigstore;
+  Maven's signing is its own world.

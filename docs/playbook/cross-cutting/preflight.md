@@ -88,13 +88,13 @@ automates almost all of this; run it before every release.
 
 ## When release-kit handles it
 
-```
+```bash
 release-kit doctor
 ```
 
 Output is a per-target table:
 
-```
+```text
 target          status  detail
 pypi            GREEN   OIDC trust policy resolves; version 1.4.2 not yet published; CHANGELOG dated
 npm             AMBER   token expires in 7 days; rotate via `release-kit rotate-tokens npm`

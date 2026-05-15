@@ -61,15 +61,21 @@ class NuGet(Registry):
 
     def publish(self, ctx: RunContext) -> StepOutcome:
         argv = [
-            "dotnet", "nuget", "push", self._glob,
-            "--api-key", getattr(self, "_api_key", ""),
-            "--source", self._source,
+            "dotnet",
+            "nuget",
+            "push",
+            self._glob,
+            "--api-key",
+            getattr(self, "_api_key", ""),
+            "--source",
+            self._source,
             "--skip-duplicate",
         ]
         if ctx.dry_run:
             # Redact the api-key in dry-run output
             return StepOutcome(
-                step="publish", status="dry-run",
+                step="publish",
+                status="dry-run",
                 detail=f"would run: dotnet nuget push {self._glob} --source {self._source}",
             )
         try:

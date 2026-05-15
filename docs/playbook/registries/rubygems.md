@@ -31,6 +31,7 @@ March 2024 and is the recommended path.
 ### OIDC (GitHub Actions)
 
 RubyGems side:
+
 1. Log in to rubygems.org.
 2. Profile → `OIDC Trusted publishers → Add`.
 3. Fields:

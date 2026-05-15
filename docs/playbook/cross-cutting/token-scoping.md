@@ -61,6 +61,7 @@ narrowest the platform supports.
 ## GHCR (GitHub Container Registry)
 
 Same as GitHub PAT above:
+
 - Push: `packages:write` (classic) or `Packages: Read & write`
   (fine-grained)
 - Pull (public): no auth required

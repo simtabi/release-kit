@@ -63,7 +63,8 @@ class GitLabRegistry(DockerPushMixin, Registry):
             )
         self._token = resolution.value
         return StepOutcome(
-            step="authenticate", status="ok",
+            step="authenticate",
+            status="ok",
             detail=f"registry={self._registry}; token from {resolution.source}",
         )
 

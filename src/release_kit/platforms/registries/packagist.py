@@ -62,7 +62,8 @@ class Packagist(Registry):
             )
         self._token = resolution.value
         return StepOutcome(
-            step="authenticate", status="ok",
+            step="authenticate",
+            status="ok",
             detail=f"package={self._package}; user={self._username}",
         )
 
@@ -85,7 +86,8 @@ class Packagist(Registry):
         body = {"repository": {"url": self._repo_url}}
         if ctx.dry_run:
             return StepOutcome(
-                step="publish", status="dry-run",
+                step="publish",
+                status="dry-run",
                 detail=f"would POST update-package for {self._package}",
             )
         try:

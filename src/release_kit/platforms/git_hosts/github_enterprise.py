@@ -19,7 +19,8 @@ class GitHubEnterpriseCloud(GitHub):
     slug: ClassVar[str] = "github-enterprise-cloud"
     automation_level: ClassVar[AutomationLevel] = AutomationLevel.OIDC_API
     supported_auth_methods: ClassVar[tuple[AuthMethod, ...]] = (
-        AuthMethod.OIDC, AuthMethod.TOKEN,
+        AuthMethod.OIDC,
+        AuthMethod.TOKEN,
     )
     # api_base inherited from GitHub (api.github.com); EMU + SAML SSO
     # are handled at the GitHub side (PAT must be SSO-authorised).
@@ -38,7 +39,8 @@ class GitHubEnterpriseServer(GitHub):
     slug: ClassVar[str] = "github-enterprise-server"
     automation_level: ClassVar[AutomationLevel] = AutomationLevel.FULL_API
     supported_auth_methods: ClassVar[tuple[AuthMethod, ...]] = (
-        AuthMethod.OIDC, AuthMethod.TOKEN,
+        AuthMethod.OIDC,
+        AuthMethod.TOKEN,
     )
 
     def __post_init__(self) -> None:

@@ -74,6 +74,7 @@ def test_run_report_with_failure() -> None:
 def test_run_context_carries_policy_view() -> None:
     """RunContext is a value object the runner injects into each step."""
     from release_kit.core.config import PolicyConfig
+
     ctx = RunContext(
         dry_run=True,
         policies=PolicyConfig(allow_token_auth=True),

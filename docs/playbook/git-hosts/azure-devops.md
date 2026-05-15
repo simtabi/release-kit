@@ -72,6 +72,7 @@ az repos policy build create \
 
 UI: User settings (top-right) → **Personal access tokens →
 New Token**:
+
 - Name: `release-kit-publish`
 - Scopes: Code (Read & write); Build (Read & execute); Release
   (Read, write & execute) — pick narrowest sufficient set
@@ -161,4 +162,5 @@ az pipelines runs list --project <project> --branch refs/tags/v1.4.2
 
 - [Azure DevOps REST API](https://learn.microsoft.com/rest/api/azure/devops/)
 - [Azure Pipelines YAML schema](https://learn.microsoft.com/azure/devops/pipelines/yaml-schema/)
-- [`../registries/acr.md`](../registries/acr.md) — Azure Container Registry pairs naturally with Azure DevOps Pipelines
+- [`../registries/acr.md`](../registries/acr.md) — Azure Container
+  Registry pairs naturally with Azure DevOps Pipelines

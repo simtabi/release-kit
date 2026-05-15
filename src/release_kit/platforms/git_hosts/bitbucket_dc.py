@@ -67,12 +67,15 @@ class BitbucketDataCenter(GitHost):
         path = f"/projects/{self._project}/repos/{self._repo}/tags/{self._tag}"
         if ctx.dry_run:
             return StepOutcome(
-                step="publish", status="dry-run",
+                step="publish",
+                status="dry-run",
                 detail=f"would verify {path}",
             )
         url = self._api_base() + path
         try:
-            with httpx.Client(timeout=30.0, headers={"Authorization": f"Bearer {self._token}"}) as client:
+            with httpx.Client(
+                timeout=30.0, headers={"Authorization": f"Bearer {self._token}"}
+            ) as client:
                 r = client.get(url)
         except httpx.HTTPError as e:
             raise PlatformError(f"network error: {e}", code="bitbucket-dc-api-error") from e

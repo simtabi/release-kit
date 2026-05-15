@@ -105,7 +105,9 @@ class GitHub(GitHubApiMixin, GitHost):
                 ctx, f"/repos/{self._repo}/releases/tags/{self._tag}", env_var=self._env_var
             )
         except Exception:
-            return StepOutcome(step="verify", status="failed", detail=f"release {self._tag} not found")
+            return StepOutcome(
+                step="verify", status="failed", detail=f"release {self._tag} not found"
+            )
         return StepOutcome(
             step="verify",
             status="ok",

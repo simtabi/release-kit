@@ -108,7 +108,9 @@ def test_packagist_invalid_package(clean_env: None) -> None:
 def test_packagist_ok(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("PACKAGIST_TOKEN", "x")
     out = _build(
-        Packagist, package="me/pkg", username="me",
+        Packagist,
+        package="me/pkg",
+        username="me",
     ).authenticate(_ctx())
     assert out.status == "ok"
 
@@ -116,7 +118,10 @@ def test_packagist_ok(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
 @respx.mock
 def test_packagist_verify_lists_versions(clean_env: None) -> None:
     plat = _build(
-        Packagist, package="me/pkg", username="me", repository="https://github.com/me/pkg",
+        Packagist,
+        package="me/pkg",
+        username="me",
+        repository="https://github.com/me/pkg",
     )
     respx.get("https://packagist.org/packages/me/pkg.json").mock(
         return_value=httpx.Response(200, json={"package": {"versions": {"1.0.0": {}, "1.1.0": {}}}})
@@ -141,9 +146,7 @@ def test_maven_central_ok(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> N
     assert out.status == "ok"
 
 
-def test_maven_central_invalid_build_tool(
-    clean_env: None, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_maven_central_invalid_build_tool(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("CENTRAL_TOKEN_USER", "u")
     monkeypatch.setenv("CENTRAL_TOKEN_VALUE", "v")
     plat = _build(MavenCentral, build_tool="rake")

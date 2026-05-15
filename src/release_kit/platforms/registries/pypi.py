@@ -167,9 +167,13 @@ class PyPI(Registry):
         @throws PublishError
         """
         argv = [
-            "python", "-m", "twine", "upload",
+            "python",
+            "-m",
+            "twine",
+            "upload",
             "--non-interactive",
-            "--repository", self._repository,
+            "--repository",
+            self._repository,
             self._dist_glob,
         ]
         if ctx.dry_run:
@@ -244,6 +248,7 @@ class PyPI(Registry):
         marker env vars that those providers always set.
         """
         import os
+
         return any(
             os.environ.get(var)
             for var in ("GITHUB_ACTIONS", "GITLAB_CI", "ACTIONS_ID_TOKEN_REQUEST_TOKEN")

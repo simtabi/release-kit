@@ -70,10 +70,9 @@ def test_targets_extra_keys_pass_through() -> None:
 def test_target_auth_invalid_value_raises() -> None:
     """An auth string outside the literal set is rejected by pydantic."""
     from pydantic import ValidationError
+
     with pytest.raises(ValidationError):
-        Config.model_validate(
-            {"project": {"name": "x"}, "targets": {"pypi": {"auth": "fish"}}}
-        )
+        Config.model_validate({"project": {"name": "x"}, "targets": {"pypi": {"auth": "fish"}}})
 
 
 def test_policies_defaults() -> None:
@@ -103,6 +102,7 @@ def test_project_version_source_validation() -> None:
     proj = ProjectConfig(name="x", version_source="pyproject.toml")
     assert proj.version_source == "pyproject.toml"
     from pydantic import ValidationError
+
     with pytest.raises(ValidationError):
         ProjectConfig(name="x", version_source="invalid-source")  # type: ignore[arg-type]
 
@@ -110,6 +110,7 @@ def test_project_version_source_validation() -> None:
 def test_target_name_must_be_trimmed() -> None:
     """Reject ``"  name"`` or ``"name  "`` because keys leak to filenames."""
     from pydantic import ValidationError
+
     with pytest.raises(ValidationError):
         Config.model_validate(
             {"project": {"name": "x"}, "targets": {"  spaced": TargetConfig().model_dump()}}
@@ -121,6 +122,9 @@ def test_bundled_schema_matches_model() -> None:
     from importlib import resources
 
     import jsonschema  # type: ignore[import-not-found]
-    schema_text = (resources.files("release_kit") / "schema" / "release-kit.schema.json").read_text()
+
+    schema_text = (
+        resources.files("release_kit") / "schema" / "release-kit.schema.json"
+    ).read_text()
     schema = json.loads(schema_text)
     jsonschema.validate(instance=Config.example(), schema=schema)

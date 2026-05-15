@@ -76,10 +76,7 @@ def test_aws_ecr_image_ref() -> None:
         registry="123.dkr.ecr.us-east-1.amazonaws.com",
         image="release-kit",
     )
-    assert (
-        plat._image_reference("v1")
-        == "123.dkr.ecr.us-east-1.amazonaws.com/release-kit:v1"
-    )
+    assert plat._image_reference("v1") == "123.dkr.ecr.us-east-1.amazonaws.com/release-kit:v1"
 
 
 # --- GAR ------------------------------------------------------------------
@@ -101,8 +98,7 @@ def test_gar_image_ref() -> None:
         image="release-kit",
     )
     assert (
-        plat._image_reference("v1")
-        == "us-central1-docker.pkg.dev/my-proj/my-repo/release-kit:v1"
+        plat._image_reference("v1") == "us-central1-docker.pkg.dev/my-proj/my-repo/release-kit:v1"
     )
 
 

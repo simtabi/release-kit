@@ -6,7 +6,7 @@ internals. Treat it as the map; per-platform contracts live in
 
 ## Layout
 
-```
+```text
 src/release_kit/
 ├── cli/              Typer entry points (one verb per @app.command)
 ├── core/

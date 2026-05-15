@@ -93,7 +93,9 @@ class DockerHub(DockerPushMixin, Registry):
         except httpx.HTTPError as e:
             raise VerifyError(f"network error verifying {url}: {e}", code="verify-network") from e
         if r.status_code == 200:
-            return StepOutcome(step="verify", status="ok", detail=f"{self._image}:{self._tags[0]} live")
+            return StepOutcome(
+                step="verify", status="ok", detail=f"{self._image}:{self._tags[0]} live"
+            )
         if r.status_code == 404:
             raise VerifyError(
                 f"Docker Hub returned 404 for {self._image}:{self._tags[0]}",
@@ -108,8 +110,10 @@ class DockerHub(DockerPushMixin, Registry):
 
     def _login_argv(self, ctx: RunContext) -> list[str] | None:
         return [
-            "docker", "login",
-            "--username", self._username,
+            "docker",
+            "login",
+            "--username",
+            self._username,
             "--password-stdin",
             # We can't pipe stdin through subprocess.run with a list easily;
             # callers should pre-stage `docker login` or use --password (with

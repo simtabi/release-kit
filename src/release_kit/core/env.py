@@ -54,9 +54,7 @@ def load_env_file(
 
     _enforce_secure_mode(candidate)
 
-    parsed: dict[str, str] = {
-        k: v for k, v in dotenv_values(candidate).items() if v is not None
-    }
+    parsed: dict[str, str] = {k: v for k, v in dotenv_values(candidate).items() if v is not None}
     if override:
         for k, v in parsed.items():
             os.environ[k] = v

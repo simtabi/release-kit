@@ -19,12 +19,14 @@ slow cadence).
 
 1. GitHub account / org exists.
 2. Create the tap repo. The name **must** be `homebrew-<something>`:
+
    ```bash
    # bash
    gh repo create simtabi/homebrew-tap --public \
      --description "Simtabi Homebrew tap" \
      --clone
    ```
+
 3. Inside the repo, create `Formula/` directory.
 4. Add a formula per package: `Formula/release-kit.rb`.
 

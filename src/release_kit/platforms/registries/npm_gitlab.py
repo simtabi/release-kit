@@ -46,9 +46,7 @@ class NpmGitLabRegistry(NpmPublishMixin, Registry):
 
     def authenticate(self, ctx: RunContext) -> StepOutcome:
         if not self._scope or not self._scope.startswith("@"):
-            raise AuthenticationError(
-                "npm-gitlab.scope must be '@<group>'", code="missing-scope"
-            )
+            raise AuthenticationError("npm-gitlab.scope must be '@<group>'", code="missing-scope")
         if not self._project_id:
             raise AuthenticationError(
                 "npm-gitlab.project_id required (numeric GitLab project ID)",
@@ -63,16 +61,15 @@ class NpmGitLabRegistry(NpmPublishMixin, Registry):
             )
         self._token = resolution.value
         return StepOutcome(
-            step="authenticate", status="ok",
+            step="authenticate",
+            status="ok",
             detail=f"scope={self._scope}; project={self._project_id}; host={self._host}",
         )
 
     def validate(self, ctx: RunContext) -> StepOutcome:
         pj = self._dir / "package.json"
         if not pj.is_file():
-            raise AuthenticationError(
-                f"package.json not found at {pj}", code="no-package-json"
-            )
+            raise AuthenticationError(f"package.json not found at {pj}", code="no-package-json")
         return StepOutcome(step="validate", status="ok", detail=str(pj))
 
     def publish(self, ctx: RunContext) -> StepOutcome:

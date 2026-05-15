@@ -59,7 +59,9 @@ class Homebrew(GitHubApiMixin, Registry):
             )
         with self._client(ctx, env_var=self._env_var):
             pass
-        return StepOutcome(step="authenticate", status="ok", detail=f"tap={self._tap} formula={self._formula}")
+        return StepOutcome(
+            step="authenticate", status="ok", detail=f"tap={self._tap} formula={self._formula}"
+        )
 
     def validate(self, ctx: RunContext) -> StepOutcome:
         if not self._sdist_url:

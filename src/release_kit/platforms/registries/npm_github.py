@@ -59,16 +59,15 @@ class NpmGitHubPackages(NpmPublishMixin, Registry):
             )
         self._token = resolution.value
         return StepOutcome(
-            step="authenticate", status="ok",
+            step="authenticate",
+            status="ok",
             detail=f"scope={self._scope}; token from {resolution.source}",
         )
 
     def validate(self, ctx: RunContext) -> StepOutcome:
         pj = self._dir / "package.json"
         if not pj.is_file():
-            raise AuthenticationError(
-                f"package.json not found at {pj}", code="no-package-json"
-            )
+            raise AuthenticationError(f"package.json not found at {pj}", code="no-package-json")
         return StepOutcome(step="validate", status="ok", detail=str(pj))
 
     def publish(self, ctx: RunContext) -> StepOutcome:
