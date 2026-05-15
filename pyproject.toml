@@ -102,6 +102,13 @@ cargo      = "release_kit.platforms.registries.cargo:CratesIo"
 nuget      = "release_kit.platforms.registries.nuget:NuGet"
 packagist  = "release_kit.platforms.registries.packagist:Packagist"
 maven-central = "release_kit.platforms.registries.maven_central:MavenCentral"
+github-enterprise-cloud  = "release_kit.platforms.git_hosts.github_enterprise:GitHubEnterpriseCloud"
+github-enterprise-server = "release_kit.platforms.git_hosts.github_enterprise:GitHubEnterpriseServer"
+gitlab-self-managed      = "release_kit.platforms.git_hosts.gitlab_self_managed:GitLabSelfManaged"
+bitbucket                = "release_kit.platforms.git_hosts.bitbucket:BitbucketCloud"
+bitbucket-dc             = "release_kit.platforms.git_hosts.bitbucket_dc:BitbucketDataCenter"
+gitea                    = "release_kit.platforms.git_hosts.gitea:Gitea"
+azure-devops             = "release_kit.platforms.git_hosts.azure_devops:AzureDevOps"
 
 [tool.hatch.build]
 include = [
