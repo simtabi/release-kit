@@ -64,6 +64,38 @@ def test_bootstrap_repo_dry_run_no_targets(tmp_path: Path) -> None:
     assert res.exit_code == 0
 
 
+def test_verify_unknown_target_exits_2(tmp_path: Path) -> None:
+    cfg = _write_config(tmp_path, {})
+    res = runner.invoke(
+        app, ["verify", "--config", str(cfg), "--target", "does-not-exist"]
+    )
+    assert res.exit_code == 2
+
+
+def test_verify_disabled_target_skipped(tmp_path: Path) -> None:
+    cfg = _write_config(
+        tmp_path,
+        {"pypi": {"enabled": False, "auth": "oidc", "package": "x"}},
+    )
+    res = runner.invoke(app, ["verify", "--config", str(cfg), "--target", "pypi"])
+    assert res.exit_code == 0
+    assert "disabled" in res.stdout
+
+
+def test_verify_dockerhub_no_image_skipped(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Dockerhub.verify returns 'skipped' when no image is configured."""
+    monkeypatch.setenv("DOCKERHUB_TOKEN", "dckr_pat_x")
+    cfg = _write_config(
+        tmp_path,
+        {"dockerhub": {"enabled": True, "auth": "token", "username": "user"}},
+    )
+    res = runner.invoke(app, ["verify", "--config", str(cfg)])
+    assert res.exit_code == 0
+    assert "SKIPPED" in res.stdout
+
+
 def test_bootstrap_repo_dry_run_github(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

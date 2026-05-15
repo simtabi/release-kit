@@ -5,13 +5,13 @@ modules; this file is a thin orchestration layer.
 
 Commands:
 
-- ``init``          scaffold release.json + .env-example in cwd
-- ``doctor``        per-target readiness check (green / amber / red)
-- ``publish``       run the publish flow (dry-run by default)
-- ``bootstrap-repo``  apply topics + branch protection per config (v0.2)
-- ``verify``        confirm an artifact is live on a target
-- ``rotate-tokens`` interactive token rotation (v0.2)
-- ``version``       print the package version
+- ``init``           scaffold release.json + .env-example in cwd
+- ``doctor``         per-target readiness check (green / amber / red)
+- ``publish``        run the publish flow (dry-run by default)
+- ``verify``         run each target's verify step to confirm artifacts are live
+- ``bootstrap-repo`` apply topics (+ branch protection in v0.2) per config
+- ``rotate-tokens``  interactive token rotation, keyring-backed
+- ``version``        print the package version
 """
 
 from __future__ import annotations
@@ -381,6 +381,69 @@ def publish(
         report.target_outcomes[name] = outcomes
 
     _print_run_report(report, dry_run=not apply)
+    if not report.ok:
+        raise typer.Exit(1)
+
+
+@app.command()
+def verify(
+    config: CONFIG_OPT = Path("release.json"),
+    env_file: ENV_FILE_OPT = None,
+    target: Annotated[
+        list[str] | None,
+        typer.Option("--target", help="Restrict to these targets. Repeatable."),
+    ] = None,
+) -> None:
+    """
+    Confirm published artifacts are live on each target.
+
+    Skips authenticate / validate / publish and runs each platform's
+    verify() step directly. Useful after a publish to confirm
+    propagation, or as a periodic liveness check from CI.
+    """
+    configure_logging("INFO")
+    load_env_file(env_file)
+    try:
+        cfg = Config.from_path(config)
+    except ReleaseKitError as e:
+        _emit_error(e)
+        raise typer.Exit(2) from e
+
+    classes = load_platform_classes()
+    selected = target or list(cfg.enabled_targets().keys())
+
+    report = RunReport()
+    for name in selected:
+        tgt = cfg.targets.get(name)
+        if tgt is None:
+            err_console.print(f"[red]unknown target[/red]: {name}")
+            raise typer.Exit(2)
+        if not tgt.enabled:
+            console.print(f"[yellow]disabled[/yellow]: {name}")
+            continue
+        cls = classes.get(name)
+        if cls is None:
+            err_console.print(f"[red]no plugin for target[/red]: {name}")
+            raise typer.Exit(2)
+
+        plat = _instantiate(cls, tgt)
+        ctx = RunContext(dry_run=False, policies=cfg.policies, target_name=name)
+        try:
+            outcome = plat.verify(ctx)
+        except ReleaseKitError as e:
+            outcome = StepOutcome(
+                step="verify",
+                status="failed",
+                detail=str(e).splitlines()[0],
+                error=e,
+            )
+            report.failures.append(outcome)
+        else:
+            if outcome.status == "failed":
+                report.failures.append(outcome)
+        report.target_outcomes[name] = [outcome]
+
+    _print_run_report(report, dry_run=False)
     if not report.ok:
         raise typer.Exit(1)
 
