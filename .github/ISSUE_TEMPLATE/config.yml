@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://opensource.simtabi.com/documentation/release-kit
+    about: Manual + per-platform reference playbook.
+  - name: Security vulnerability
+    url: https://github.com/simtabi/release-kit/security/policy
+    about: Use private vulnerability reporting; do not file a public issue.
+  - name: Discussion / question
+    url: https://github.com/simtabi/release-kit/discussions
+    about: Ask questions, share recipes, or propose ideas before formalising.
