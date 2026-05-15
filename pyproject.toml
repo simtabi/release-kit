@@ -95,6 +95,13 @@ gitlab-registry = "release_kit.platforms.registries.gitlab_registry:GitLabRegist
 aws-ecr    = "release_kit.platforms.registries.aws_ecr:AWSElasticContainerRegistry"
 gar        = "release_kit.platforms.registries.gar:GoogleArtifactRegistry"
 acr        = "release_kit.platforms.registries.acr:AzureContainerRegistry"
+npm-github = "release_kit.platforms.registries.npm_github:NpmGitHubPackages"
+npm-gitlab = "release_kit.platforms.registries.npm_gitlab:NpmGitLabRegistry"
+rubygems   = "release_kit.platforms.registries.rubygems:RubyGems"
+cargo      = "release_kit.platforms.registries.cargo:CratesIo"
+nuget      = "release_kit.platforms.registries.nuget:NuGet"
+packagist  = "release_kit.platforms.registries.packagist:Packagist"
+maven-central = "release_kit.platforms.registries.maven_central:MavenCentral"
 
 [tool.hatch.build]
 include = [
