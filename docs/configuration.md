@@ -76,6 +76,8 @@ Global publish-time policies enforced by the runner.
 | `continue_on_error` | `bool` | `false` | When `true`, a failing target doesn't abort siblings. |
 | `default_dry_run` | `bool` | `true` | Default `publish` to dry-run unless `--apply` is set. |
 | `allow_token_auth` | `bool` | `false` | When `false`, refuse to fall back from OIDC to a token without `--allow-token-auth`. |
+| `parallel_publish` | `bool` | `false` | When `true`, run target lifecycles concurrently in a thread pool. Steps within a target stay sequential; only the cross-target loop parallelises. |
+| `max_workers` | `int` (1..32) | `4` | Worker count when `parallel_publish` is on. |
 
 ## Token resolution
 

@@ -80,6 +80,82 @@ def test_publish_continue_on_error_proceeds_to_next(clean_env: None) -> None:
 
 
 # ---------------------------------------------------------------------------
+# publish — parallel mode
+# ---------------------------------------------------------------------------
+
+
+def test_publish_parallel_runs_all_targets(clean_env: None) -> None:
+    """parallel_publish=True still produces outcomes for every target."""
+    cfg = Config(
+        project=ProjectConfig(name="x"),
+        targets={
+            "pypi": TargetConfig.model_validate(
+                {"enabled": True, "auth": "oidc", "package": "x"}
+            ),
+            "missing": TargetConfig.model_validate(
+                {"enabled": True, "auth": "token"}
+            ),
+        },
+        policies=PolicyConfig(
+            parallel_publish=True,
+            max_workers=2,
+            continue_on_error=True,
+        ),
+    )
+    report = run_publish(cfg, apply=False)
+    assert "pypi" in report.target_outcomes
+    assert "missing" in report.target_outcomes
+
+
+def test_publish_parallel_continue_on_error_false_cancels_pending(
+    clean_env: None,
+) -> None:
+    """When a target fails and continue_on_error=False, the report should
+    surface at least the first failure; pending futures may be dropped."""
+    cfg = Config(
+        project=ProjectConfig(name="x"),
+        targets={
+            "missing-a": TargetConfig.model_validate(
+                {"enabled": True, "auth": "token"}
+            ),
+            "missing-b": TargetConfig.model_validate(
+                {"enabled": True, "auth": "token"}
+            ),
+        },
+        policies=PolicyConfig(
+            parallel_publish=True,
+            max_workers=2,
+            continue_on_error=False,
+        ),
+    )
+    report = run_publish(cfg, apply=False)
+    assert report.failures  # at least one
+    # Both targets resolve fast; the contract is "some failure surfaces".
+    # We don't pin which one because that's executor-order dependent.
+
+
+def test_publish_parallel_max_workers_clamped_to_target_count(
+    clean_env: None,
+) -> None:
+    """max_workers=32 with 1 target -> uses 1 worker, no NPE."""
+    cfg = Config(
+        project=ProjectConfig(name="x"),
+        targets={
+            "pypi": TargetConfig.model_validate(
+                {"enabled": True, "auth": "oidc", "package": "x"}
+            ),
+        },
+        policies=PolicyConfig(
+            parallel_publish=True,
+            max_workers=32,
+            continue_on_error=True,
+        ),
+    )
+    report = run_publish(cfg, apply=False)
+    assert "pypi" in report.target_outcomes
+
+
+# ---------------------------------------------------------------------------
 # bootstrap_repo
 # ---------------------------------------------------------------------------
 

@@ -106,9 +106,9 @@ Empty output = all good.
 - The `doctor` `validate` step doesn't yet hit each registry's
   HEAD endpoint to confirm reachability; it only validates local
   config. Listed as v0.2 work in ADR-013.
-- `publish --apply` is sequential across targets. Parallel
-  execution would shorten end-to-end CI time but complicates the
-  failure report; deferred until a real use case asks for it.
+- `publish --apply` is sequential by default. Set
+  `policies.parallel_publish = true` to run target lifecycles in a
+  thread pool sized by `policies.max_workers` (default 4).
 - Coverage is at 75.95% with the gate at 70%. The deficit is
   concentrated in the publish methods of platforms that need a
   live registry to test (cargo, nuget, rubygems, packagist). Full

@@ -101,6 +101,12 @@ class PolicyConfig(BaseModel):
     allow_token_auth: bool = False
     """When False (default), refuse to fall back from OIDC to a token without --allow-token-auth."""
 
+    parallel_publish: bool = False
+    """When True, publish targets concurrently in a thread pool (default: serial)."""
+
+    max_workers: int = Field(default=4, ge=1, le=32)
+    """Worker count when parallel_publish is True (1..32; default: 4)."""
+
 
 class Config(BaseModel):
     """
