@@ -2,10 +2,11 @@
 
 Only meaningful for git-host targets (github, gitlab, etc.).
 Walks the configured targets, asks each git-host plugin to apply
-its declarative settings (topics, branch protection, environments).
+its declarative settings (topics, branch protection).
 
-v0.1: applies topics for GitHub-like hosts. Branch protection and
-environment / required-reviewer flows are queued for v0.2.
+GitHub-flavoured hosts support `topics` (PUT /repos/{repo}/topics)
+and `branch_protection` (PUT /repos/{repo}/branches/{branch}/protection).
+Other hosts emit `skipped` for both.
 """
 
 from __future__ import annotations
@@ -67,7 +68,7 @@ def run_bootstrap(config: Config, *, apply: bool = False) -> RunReport:
                 break
             continue
 
-        # Topics (GitHub flavours)
+        # Topics + branch protection (GitHub flavours)
         if isinstance(plat_obj, GitHub):
             topics = plat_obj._topics
             if topics:
@@ -88,6 +89,37 @@ def run_bootstrap(config: Config, *, apply: bool = False) -> RunReport:
                         )
                     except PlatformError as e:
                         outcomes.append(StepOutcome("topics", "failed", str(e), error=e))
+                        report.failures.append(outcomes[-1])
+
+            bp = plat_obj._branch_protection
+            if bp:
+                bp_body = dict(bp)
+                branch = str(bp_body.pop("branch", "main"))
+                path = f"/repos/{plat_obj._repo}/branches/{branch}/protection"
+                if ctx.dry_run:
+                    outcomes.append(
+                        StepOutcome(
+                            "branch_protection",
+                            "dry-run",
+                            f"would PUT {path} ({len(bp_body)} setting(s))",
+                        )
+                    )
+                else:
+                    try:
+                        plat_obj._api_put(
+                            ctx, path, json=bp_body, env_var=plat_obj._env_var
+                        )
+                        outcomes.append(
+                            StepOutcome(
+                                "branch_protection",
+                                "ok",
+                                f"applied to {branch}",
+                            )
+                        )
+                    except PlatformError as e:
+                        outcomes.append(
+                            StepOutcome("branch_protection", "failed", str(e), error=e)
+                        )
                         report.failures.append(outcomes[-1])
         else:
             outcomes.append(

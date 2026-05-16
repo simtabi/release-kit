@@ -88,8 +88,9 @@ Empty output = all good.
 
 ## What's deferred to v0.2
 
-- Branch protection + environment / required-reviewer flows in
-  `bootstrap-repo` (today only topics are applied for GitHub).
+- Environment / required-reviewer flows in `bootstrap-repo` (topics
+  + branch protection now ship; environments + required reviewers
+  remain for a follow-up).
 - A web dashboard / GitHub Action for unattended scheduled
   rotations.
 - Provenance/SBOM emission as a first-class config block. Today

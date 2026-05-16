@@ -46,6 +46,21 @@ class GitHub(GitHubApiMixin, GitHost):
         self._generate_notes: bool = bool(extras.get("generate_notes", True))
         self._topics: list[str] = list(extras.get("topics") or [])
         self._env_var: str = str(extras.get("env_var", "GITHUB_TOKEN"))
+        # Optional declarative branch protection. None means "don't touch".
+        # When set, must be a dict; the keys mirror the GitHub PUT
+        # /repos/{owner}/{repo}/branches/{branch}/protection schema.
+        # Common shape:
+        #   branch_protection:
+        #     branch: main
+        #     required_status_checks: { strict: true, contexts: [ci] }
+        #     enforce_admins: true
+        #     required_pull_request_reviews:
+        #       required_approving_review_count: 1
+        #     restrictions: null
+        bp = extras.get("branch_protection")
+        self._branch_protection: dict[str, object] | None = (
+            dict(bp) if isinstance(bp, dict) else None
+        )
 
     def authenticate(self, ctx: RunContext) -> StepOutcome:
         if not self._repo or "/" not in self._repo:

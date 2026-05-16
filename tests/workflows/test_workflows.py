@@ -7,6 +7,8 @@ rotate_tokens:   rotation table coverage + keyring write.
 
 from __future__ import annotations
 
+import json
+
 import httpx
 import pytest
 import respx
@@ -121,6 +123,80 @@ def test_bootstrap_apply_calls_topics_endpoint(
     steps = report.target_outcomes["github"]
     assert any(s.status == "ok" and "applied 1 topic" in s.detail for s in steps)
     assert route.called
+
+
+def test_bootstrap_dry_run_branch_protection(
+    clean_env: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("GITHUB_TOKEN", "ghp_x")
+    cfg = _make_config(
+        github={
+            "enabled": True,
+            "auth": "token",
+            "repo": "o/r",
+            "tag": "v1.0.0",
+            "branch_protection": {
+                "branch": "main",
+                "enforce_admins": True,
+                "required_pull_request_reviews": {
+                    "required_approving_review_count": 1
+                },
+            },
+        }
+    )
+    report = run_bootstrap(cfg, apply=False)
+    steps = report.target_outcomes["github"]
+    bp = [s for s in steps if s.step == "branch_protection"]
+    assert bp
+    assert bp[0].status == "dry-run"
+    assert "PUT /repos/o/r/branches/main/protection" in bp[0].detail
+
+
+@respx.mock
+def test_bootstrap_apply_calls_branch_protection_endpoint(
+    clean_env: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("GITHUB_TOKEN", "ghp_x")
+    route = respx.put(
+        "https://api.github.com/repos/o/r/branches/main/protection"
+    ).mock(return_value=httpx.Response(200, json={"url": "..."}))
+    cfg = _make_config(
+        github={
+            "enabled": True,
+            "auth": "token",
+            "repo": "o/r",
+            "tag": "v1.0.0",
+            "branch_protection": {
+                "branch": "main",
+                "enforce_admins": True,
+            },
+        }
+    )
+    report = run_bootstrap(cfg, apply=True)
+    steps = report.target_outcomes["github"]
+    bp = [s for s in steps if s.step == "branch_protection"]
+    assert bp
+    assert bp[0].status == "ok"
+    assert "applied to main" in bp[0].detail
+    assert route.called
+    # Ensure the `branch` key was stripped from the body (it's part of
+    # the URL, not the payload).
+    body = json.loads(route.calls.last.request.content)
+    assert "branch" not in body
+    assert body.get("enforce_admins") is True
+
+
+def test_bootstrap_no_branch_protection_emits_no_step(
+    clean_env: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Without `branch_protection` in config, no step is emitted."""
+    monkeypatch.setenv("GITHUB_TOKEN", "ghp_x")
+    cfg = _make_config(
+        github={"enabled": True, "auth": "token", "repo": "o/r", "tag": "v1.0.0"}
+    )
+    report = run_bootstrap(cfg, apply=False)
+    steps = report.target_outcomes["github"]
+    assert not any(s.step == "branch_protection" for s in steps)
 
 
 def test_bootstrap_skips_non_github_hosts(clean_env: None, monkeypatch: pytest.MonkeyPatch) -> None:

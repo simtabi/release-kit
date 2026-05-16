@@ -82,7 +82,8 @@ Exits non-zero when any target's `verify()` returns `status="failed"`.
 
 ## `release-kit bootstrap-repo`
 
-Apply declarative repo settings (topics, etc.) per git-host target.
+Apply declarative repo settings (topics + branch protection) per
+git-host target.
 
 ```bash
 release-kit bootstrap-repo [--apply] [--config PATH]
@@ -92,9 +93,45 @@ release-kit bootstrap-repo [--apply] [--config PATH]
 |---|---|---|
 | `--apply` | dry-run | Actually call the host's API. |
 
-v0.1 supports GitHub topics. Other hosts produce a uniform
-"skipped — not yet implemented" outcome so the report stays
-consistent.
+GitHub-flavoured hosts support two settings, both opt-in via target
+extras:
+
+- `topics: ["oss", "python"]` — repo topics (PUT `/repos/{repo}/topics`)
+- `branch_protection: { branch: main, ... }` — full branch
+  protection schema (PUT `/repos/{repo}/branches/{branch}/protection`).
+  The `branch` key is stripped from the payload; everything else
+  passes through to GitHub's API. See
+  <https://docs.github.com/en/rest/branches/branch-protection#update-branch-protection>
+  for the field list (`required_status_checks`, `enforce_admins`,
+  `required_pull_request_reviews`, `restrictions`, …).
+
+Other hosts produce a uniform "skipped — not yet implemented"
+outcome so the report stays consistent.
+
+### Example
+
+```json
+"github": {
+  "enabled": true,
+  "auth": "token",
+  "repo": "my-org/my-package",
+  "tag": "v1.4.2",
+  "topics": ["oss", "python", "release-automation"],
+  "branch_protection": {
+    "branch": "main",
+    "enforce_admins": true,
+    "required_status_checks": {
+      "strict": true,
+      "contexts": ["ci"]
+    },
+    "required_pull_request_reviews": {
+      "required_approving_review_count": 1,
+      "require_code_owner_reviews": false
+    },
+    "restrictions": null
+  }
+}
+```
 
 ## `release-kit rotate-tokens`
 
