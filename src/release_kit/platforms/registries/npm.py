@@ -8,6 +8,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import ClassVar
 
+import httpx
+
 from ...core.errors import AuthenticationError
 from ...core.runner import RunContext, StepOutcome
 from ...core.secrets import resolve_token
@@ -91,3 +93,18 @@ class Npm(NpmPublishMixin, Registry):
         if self._provenance:
             args.append("--provenance")
         return args
+
+    def reach_probe(self, ctx: RunContext) -> StepOutcome:
+        """HEAD-probe registry.npmjs.org with a 5-second timeout."""
+        try:
+            with httpx.Client(timeout=5.0) as client:
+                r = client.head("https://registry.npmjs.org/", follow_redirects=True)
+        except httpx.HTTPError as e:
+            return StepOutcome(step="reach", status="failed", detail=f"unreachable: {e}")
+        if r.status_code >= 500:
+            return StepOutcome(
+                step="reach", status="failed", detail=f"npmjs returned {r.status_code}"
+            )
+        return StepOutcome(
+            step="reach", status="ok", detail=f"registry.npmjs.org -> {r.status_code}"
+        )

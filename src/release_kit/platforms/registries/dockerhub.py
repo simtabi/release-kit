@@ -82,6 +82,21 @@ class DockerHub(DockerPushMixin, Registry):
     def publish(self, ctx: RunContext) -> StepOutcome:
         return self._do_publish(ctx)
 
+    def reach_probe(self, ctx: RunContext) -> StepOutcome:
+        """HEAD-probe hub.docker.com with a 5-second timeout."""
+        try:
+            with httpx.Client(timeout=5.0) as client:
+                r = client.head("https://hub.docker.com/v2/", follow_redirects=True)
+        except httpx.HTTPError as e:
+            return StepOutcome(step="reach", status="failed", detail=f"unreachable: {e}")
+        if r.status_code >= 500:
+            return StepOutcome(
+                step="reach", status="failed", detail=f"docker hub returned {r.status_code}"
+            )
+        return StepOutcome(
+            step="reach", status="ok", detail=f"hub.docker.com -> {r.status_code}"
+        )
+
     def verify(self, ctx: RunContext) -> StepOutcome:
         """Confirm at least one of the requested tags resolves via Docker Hub's v2 API."""
         if not self._image or "/" not in self._image:

@@ -110,6 +110,44 @@ def test_publish_dry_run_does_not_execute(tmp_path: Path, monkeypatch: pytest.Mo
 
 
 @respx.mock
+def test_reach_probe_other_platforms() -> None:
+    """npm, GHCR, Docker Hub, GitHub all expose reach_probe()."""
+    import httpx as _httpx
+
+    from release_kit.core.config import TargetConfig
+    from release_kit.platforms.git_hosts.github import GitHub
+    from release_kit.platforms.registries.dockerhub import DockerHub
+    from release_kit.platforms.registries.ghcr import GHCR
+    from release_kit.platforms.registries.npm import Npm
+
+    def _instantiate(cls, target_dict):
+        target = TargetConfig.model_validate({"enabled": True, "auth": "oidc", **target_dict})
+        inst = cls.from_target(target)
+        inst.__post_init__()
+        return inst
+
+    # npm
+    respx.head("https://registry.npmjs.org/").mock(return_value=_httpx.Response(200))
+    npm = _instantiate(Npm, {})
+    assert npm.reach_probe(_ctx()).status == "ok"
+
+    # Docker Hub
+    respx.head("https://hub.docker.com/v2/").mock(return_value=_httpx.Response(200))
+    dh = _instantiate(DockerHub, {"username": "x", "image": "x/y"})
+    assert dh.reach_probe(_ctx()).status == "ok"
+
+    # GHCR — 401 unauth still proves reach
+    respx.head("https://ghcr.io/v2/").mock(return_value=_httpx.Response(401))
+    ghcr = _instantiate(GHCR, {"image": "ghcr.io/o/r"})
+    assert ghcr.reach_probe(_ctx()).status == "ok"
+
+    # GitHub
+    respx.head("https://api.github.com").mock(return_value=_httpx.Response(200))
+    gh = _instantiate(GitHub, {"repo": "o/r", "tag": "v1.0.0"})
+    assert gh.reach_probe(_ctx()).status == "ok"
+
+
+@respx.mock
 def test_reach_probe_200_returns_ok() -> None:
     plat = _make_pypi(project_name="x")
     respx.head("https://pypi.org/simple/").mock(return_value=httpx.Response(200))

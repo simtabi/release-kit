@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from typing import ClassVar
 
+import httpx
+
 from ...core.errors import AuthenticationError
 from ...core.runner import RunContext, StepOutcome
 from ...core.secrets import resolve_token
@@ -81,6 +83,20 @@ class GHCR(DockerPushMixin, Registry):
 
     def publish(self, ctx: RunContext) -> StepOutcome:
         return self._do_publish(ctx)
+
+    def reach_probe(self, ctx: RunContext) -> StepOutcome:
+        """HEAD-probe ghcr.io with a 5-second timeout."""
+        try:
+            with httpx.Client(timeout=5.0) as client:
+                r = client.head("https://ghcr.io/v2/", follow_redirects=True)
+        except httpx.HTTPError as e:
+            return StepOutcome(step="reach", status="failed", detail=f"unreachable: {e}")
+        # GHCR returns 401 unauthenticated on /v2/, which still proves reach.
+        if r.status_code >= 500:
+            return StepOutcome(
+                step="reach", status="failed", detail=f"ghcr returned {r.status_code}"
+            )
+        return StepOutcome(step="reach", status="ok", detail=f"ghcr.io -> {r.status_code}")
 
     def _login_argv(self, ctx: RunContext) -> list[str] | None:
         # The actual `docker login` in CI is handled by docker/login-action;

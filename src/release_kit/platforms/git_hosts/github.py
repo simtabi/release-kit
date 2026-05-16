@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from typing import ClassVar
 
+import httpx
+
 from ...core.errors import AuthenticationError, PublishError
 from ...core.runner import RunContext, StepOutcome
 from ..base import AuthMethod, AutomationLevel, GitHost
@@ -109,6 +111,21 @@ class GitHub(GitHubApiMixin, GitHost):
             step="publish",
             status="ok",
             detail=f"release {self._tag} created on {self._repo}",
+        )
+
+    def reach_probe(self, ctx: RunContext) -> StepOutcome:
+        """HEAD-probe the GitHub API root with a 5-second timeout."""
+        try:
+            with httpx.Client(timeout=5.0) as client:
+                r = client.head(self.api_base, follow_redirects=True)
+        except httpx.HTTPError as e:
+            return StepOutcome(step="reach", status="failed", detail=f"unreachable: {e}")
+        if r.status_code >= 500:
+            return StepOutcome(
+                step="reach", status="failed", detail=f"api returned {r.status_code}"
+            )
+        return StepOutcome(
+            step="reach", status="ok", detail=f"{self.api_base} -> {r.status_code}"
         )
 
     def verify(self, ctx: RunContext) -> StepOutcome:
