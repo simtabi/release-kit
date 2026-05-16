@@ -147,6 +147,49 @@ those land:
 
 Round 4 (the Laravel admin app) is a separate planning conversation.
 
+## Ship state — 2026-05-16
+
+| Package | Latest tag | PyPI | GitHub Release |
+|---|---|---|---|
+| `simtabi-release-kit` | `v0.3.0` | ✓ `0.3.0` | ✓ |
+| `ai-config-kit` | `v0.6.0` | ⚠ NOT PUBLISHED (publisher config pending) | ✓ |
+| `get-installer` | `v0.4.0` | ✓ `0.4.0` | ✓ |
+
+This session shipped 0.2 → 0.3 → ?  on release-kit, 0.3.0 → 0.3.1 → 0.3.2 → 0.4.0 on get-installer, 0.4.2 → 0.5.0 → 0.6.0 on ai-config-kit.
+
+## What's left
+
+Everything code-side has been resolved this session, including the
+deferred items I'd marked earlier. What remains needs external
+input:
+
+1. **ai-config-kit PyPI publisher**: configure trusted publisher on
+   PyPI for project `ai-config-kit` (Owner: simtabi, Repo:
+   ai-config-kit, Workflow: release.yml, Environment: pypi). Then
+   `gh run rerun --failed <latest>` or cut v0.6.1.
+
+2. **Sigstore key-management ADR** (#16): the scaffold ships in
+   get-installer v0.4.0; the in-the-flesh signing flow needs a
+   decision on which signing identity, key rotation cadence, and
+   where the public verification key ships.
+
+3. **S3 sync auth-design ADR** (#18): the scaffold ships in
+   ai-config-kit v0.6.0; the upload flow needs an auth design
+   (IAM role? STS? federated identity?).
+
+4. **Forge per-type fetchers** (#19): registry.json's `forge` field
+   is informational in v0.4.0; v0.5 of get-installer wires the
+   fetchers once a real consumer needs more than the existing
+   tarball-URL model.
+
+5. **conda-forge PR automation** (#22): the platform plugin scaffold
+   ships in release-kit v0.3.0; full PR creation needs careful
+   merge-conflict handling. Best done with a real feedstock to test
+   against.
+
+6. **Laravel admin app** (#23): `simtabi/get-installer/REPO-PROPOSAL-admin.md`
+   captures the scope when someone takes that on.
+
 _Generated 2026-05-16. Re-verify SPEC phase markers if used as a
 punch list more than a few days later — `### Phase X: ✔ <date>`
 markers move as features ship._
