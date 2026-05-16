@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "simtabi-release-kit"
-version = "0.3.0"
+version = "0.4.0"
 description = "Multi-registry publishing automation. PyPI, npm, Docker, Homebrew, Maven, RubyGems, Cargo, NuGet, Packagist, plus seven git hosts. Fluent OOP, config-driven, OIDC-first."
 readme = "README.md"
 license = { file = "LICENSE" }

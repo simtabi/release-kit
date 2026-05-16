@@ -8,6 +8,31 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 _No changes yet._
 
+## [0.4.0] — 2026-05-16
+
+### Added
+
+- **Conda-forge PR automation** (`be3f78d`, `462c9f2`): the
+  `conda-forge` platform plugin's `publish()` method now executes
+  the full feedstock-bump flow on `--apply`:
+  1. Shallow clone of the fork.
+  2. Patch `recipe/meta.yaml`: `{% set version %}` + `sha256:` +
+     `build.number` reset.
+  3. Create `release-kit/bump-<version>` branch, commit, force-with-
+     lease push to the fork.
+  4. Open the PR against the feedstock via the GitHub API.
+
+  Idempotent: an existing open PR for the same `<fork>:<branch>`
+  short-circuits with status `ok` and the existing PR URL.
+
+### Changed
+
+- `RE-AUDIT.md` updated with the final ship state (every Round
+  1/2/3/4 item resolved).
+
+[Unreleased]: https://github.com/simtabi/release-kit/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/simtabi/release-kit/releases/tag/v0.4.0
+
 ## [0.3.0] — 2026-05-16
 
 ### Added
@@ -30,7 +55,6 @@ _No changes yet._
   audit, with every Round 1/2/3/4 item resolved or
   deferred-with-rationale. (`5abde5b`, `c6d4787`)
 
-[Unreleased]: https://github.com/simtabi/release-kit/compare/v0.3.0...HEAD
 [0.3.0]: https://github.com/simtabi/release-kit/releases/tag/v0.3.0
 
 ## [0.2.0] — 2026-05-16
