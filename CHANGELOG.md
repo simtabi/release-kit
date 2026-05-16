@@ -8,6 +8,52 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 _No changes yet._
 
+## [0.2.0] — 2026-05-16
+
+### Added
+
+- **`release-kit verify`** verb (`f0daa28`): runs each target's
+  `verify()` step in isolation. Useful as a periodic liveness check
+  after publish.
+- **HEAD-probe in `doctor`** (`68cb02e`): new `Platform.reach_probe()`
+  method; PyPI override HEADs `https://pypi.org/simple/` with a 5s
+  timeout. Doctor escalates GREEN → RED when reach fails.
+- **Branch protection in `bootstrap-repo`** (`0cc6cd9`):
+  declarative `branch_protection` block in TargetConfig passes through
+  to GitHub's `PUT /repos/{repo}/branches/{branch}/protection`. Topics
+  + branch protection now both ship under one verb.
+- **Provenance / SBOM block** (`ec6dbdc`): new `PolicyConfig.provenance`
+  with `require_sbom`, `sbom_path`, `attach_to_github_release`. Publish
+  refuses to start when SBOM is required but missing.
+- **Parallel publish** (`ff18d0e`): `policies.parallel_publish=true`
+  runs target lifecycles concurrently via `ThreadPoolExecutor` sized
+  by `policies.max_workers` (1..32, default 4).
+
+### Changed
+
+- CodeQL workflow (`311797c`): weekly + push/PR scan, python + actions
+  languages, security-and-quality query set.
+- README badges (`311797c`): CI status, PyPI version, supported
+  Pythons, license.
+- All four Node.js 20-deprecated actions bumped past the 2026-06-02
+  cutoff (`3f4227a`): `checkout v4→v6`, `setup-python v5→v6`,
+  `upload-artifact v4→v7`, `download-artifact v4→v8`.
+- Repository security toggles enabled: secret-scanning,
+  push-protection, dependabot-security-updates, private vulnerability
+  reporting.
+
+### Fixed
+
+- `jsonschema>=4.21` added to `[dev]` extras (`44dc12a`): the bundled
+  schema test was passing locally only because of an unrelated
+  dependency.
+
+### Deferred
+
+- Environment / required-reviewer flows in `bootstrap-repo`.
+- conda-forge feedstock automation (manual flow remains documented).
+- SBOM generation (delegated to `cyclonedx-py` / `syft` by design).
+
 ## [0.1.0] — 2026-05-15
 
 ### Added
@@ -65,5 +111,6 @@ _No changes yet._
 - conda-forge feedstock automation.
 - Parallel-publish across targets.
 
-[Unreleased]: https://github.com/simtabi/release-kit/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/simtabi/release-kit/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/simtabi/release-kit/releases/tag/v0.2.0
 [0.1.0]: https://github.com/simtabi/release-kit/releases/tag/v0.1.0
