@@ -8,6 +8,31 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 _No changes yet._
 
+## [0.3.0] — 2026-05-16
+
+### Added
+
+- **conda-forge platform plugin** (`0e691b4`): PR-based automation
+  level. Lifecycle covers authenticate (validates feedstock + fork
+  shape + token), validate (version + 64-char sha256), publish
+  (dry-run prints the planned patch; apply raises `not-implemented`
+  with a pointer to the manual flow so PR creation can't half-fire),
+  verify (queries the feedstock for an open PR matching the
+  version). 26 platforms registered now.
+- **`reach_probe` on 4 more platforms** (`4cfa31f`): npm, GHCR,
+  Docker Hub, GitHub. Same 5-second HEAD pattern as the PyPI
+  override that shipped in v0.2.0. Doctor escalates GREEN → RED on
+  network failure across the typical OSS publishing stack.
+
+### Changed
+
+- `RE-AUDIT.md` is now a full punch-list for the cross-package
+  audit, with every Round 1/2/3/4 item resolved or
+  deferred-with-rationale. (`5abde5b`, `c6d4787`)
+
+[Unreleased]: https://github.com/simtabi/release-kit/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/simtabi/release-kit/releases/tag/v0.3.0
+
 ## [0.2.0] — 2026-05-16
 
 ### Added
@@ -111,6 +136,5 @@ _No changes yet._
 - conda-forge feedstock automation.
 - Parallel-publish across targets.
 
-[Unreleased]: https://github.com/simtabi/release-kit/compare/v0.2.0...HEAD
 [0.2.0]: https://github.com/simtabi/release-kit/releases/tag/v0.2.0
 [0.1.0]: https://github.com/simtabi/release-kit/releases/tag/v0.1.0
