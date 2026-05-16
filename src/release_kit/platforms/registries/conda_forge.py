@@ -92,9 +92,22 @@ class CondaForge(GitHubApiMixin, Registry):
         )
 
     def publish(self, ctx: RunContext) -> StepOutcome:
-        """Plan a feedstock PR. Real PR creation is v0.3 work; for now
-        dry-run prints the patch + PR URL, and `apply` raises with
-        the explicit instruction so we never half-create a PR."""
+        """Create the feedstock PR.
+
+        Flow:
+        1. Clone the fork into a temp dir.
+        2. Patch ``recipe/meta.yaml``: bump ``{% set version = "..." %}``
+           and ``sha256: ...`` to the configured values.
+        3. Commit on a release branch named
+           ``release-kit/bump-<version>``.
+        4. Push the branch to the fork.
+        5. Open a PR against the feedstock via the GitHub API.
+
+        Idempotent: if the branch + PR already exist for this version,
+        we skip and return the existing PR's URL.
+
+        @raises PublishError on git / API failure.
+        """
         if ctx.dry_run:
             return StepOutcome(
                 step="publish",
@@ -105,22 +118,167 @@ class CondaForge(GitHubApiMixin, Registry):
                     f"against {self._feedstock}"
                 ),
             )
-        # Live PR creation requires: clone the fork, read recipe/meta.yaml,
-        # template-substitute version + sha256, commit on a release branch,
-        # push to fork, open PR via API. Each step needs careful error
-        # handling around merge conflicts and existing branches. That
-        # lands in v0.3 (separate ADR pending). For now, the apply path
-        # raises so users get a clear "use the documented manual flow"
-        # signal rather than a half-done state.
-        raise PublishError(
-            "conda-forge PR automation is not yet wired in release-kit (v0.2). "
-            "Use the manual flow in docs/playbook/registries/conda-forge.md.",
-            code="not-implemented",
-            remediation=(
-                "Run `gh repo clone " + self._fork + "`, edit recipe/meta.yaml "
-                "by hand, push, and open the PR via `gh pr create`. "
-                "Track release-kit#TBD for full automation."
-            ),
+
+        import re
+        import subprocess
+        import tempfile
+        from pathlib import Path
+
+        branch = f"release-kit/bump-{self._version}"
+        fork_url = f"https://github.com/{self._fork}.git"
+
+        with tempfile.TemporaryDirectory(prefix="release-kit-feedstock-") as tmp:
+            tmp_path = Path(tmp)
+
+            # 1. Clone the fork (shallow, --branch main).
+            try:
+                subprocess.run(
+                    ["git", "clone", "--depth", "1", fork_url, str(tmp_path / "feedstock")],
+                    capture_output=True, text=True, check=True, timeout=120,
+                )
+            except subprocess.CalledProcessError as e:
+                raise PublishError(
+                    f"git clone {fork_url} failed: {e.stderr.strip()[:200]}",
+                    code="clone-failed",
+                ) from e
+            repo_root = tmp_path / "feedstock"
+            recipe = repo_root / "recipe" / "meta.yaml"
+            if not recipe.is_file():
+                raise PublishError(
+                    f"recipe/meta.yaml not found in {self._fork}",
+                    code="missing-recipe",
+                    remediation=f"Confirm {self._fork} is a conda-forge feedstock fork.",
+                )
+
+            # 2. Patch version + sha256 + reset build number to 0.
+            text = recipe.read_text(encoding="utf-8")
+            new_text = re.sub(
+                r'(\{\%\s*set\s+version\s*=\s*")[^"]+(".*\%\})',
+                rf"\g<1>{self._version}\g<2>",
+                text,
+            )
+            new_text = re.sub(
+                r"(sha256:\s*)[0-9a-fA-F]{64}",
+                rf"\g<1>{self._sha256}",
+                new_text,
+            )
+            new_text = re.sub(
+                r"(number:\s*)\d+",
+                r"\g<1>0",
+                new_text,
+                count=1,
+            )
+            if new_text == text:
+                raise PublishError(
+                    f"recipe/meta.yaml patch was a no-op: nothing matched the "
+                    f"version + sha256 + build-number regexes in {recipe}",
+                    code="patch-no-op",
+                    remediation=(
+                        "Inspect recipe/meta.yaml in the fork. The expected "
+                        'patterns are `{% set version = "X.Y.Z" %}`, '
+                        "`sha256: <64-hex>`, and `number: <int>`."
+                    ),
+                )
+            recipe.write_text(new_text, encoding="utf-8")
+
+            # 3. Create a release branch + commit.
+            def _git(*args: str) -> str:
+                r = subprocess.run(
+                    ["git", *args],
+                    capture_output=True, text=True, cwd=repo_root, timeout=60,
+                )
+                if r.returncode != 0:
+                    raise PublishError(
+                        f"git {' '.join(args)} failed: {r.stderr.strip()[:200]}",
+                        code="git-failed",
+                    )
+                return r.stdout
+
+            _git("checkout", "-B", branch)
+            _git("add", "recipe/meta.yaml")
+            _git(
+                "-c", "user.email=release-kit@simtabi.com",
+                "-c", "user.name=release-kit",
+                "commit", "-m", f"bump to {self._version}",
+            )
+
+            # 4. Push to the fork. We need the token in the URL since
+            # this is a non-interactive flow.
+            from ...core.secrets import resolve_token
+            resolution = resolve_token("github", env_var=self._env_var)
+            if not resolution.resolved:
+                raise PublishError(
+                    f"no GitHub token resolved (env_var={self._env_var}). "
+                    "Cannot push to the fork.",
+                    code="token-not-found",
+                )
+            authed_url = (
+                f"https://x-access-token:{resolution.value}"
+                f"@github.com/{self._fork}.git"
+            )
+            try:
+                subprocess.run(
+                    ["git", "push", "--force-with-lease", authed_url, branch],
+                    capture_output=True, text=True, check=True, timeout=120,
+                    cwd=repo_root,
+                )
+            except subprocess.CalledProcessError as e:
+                raise PublishError(
+                    f"git push to {self._fork} failed: {e.stderr.strip()[:200]}",
+                    code="push-failed",
+                ) from e
+
+            # 5. Open the PR via the API. Idempotent: if a PR with the
+            # same head branch already exists, return that one.
+            fork_owner = self._fork.split("/", 1)[0]
+            head = f"{fork_owner}:{branch}"
+            existing: object
+            try:
+                existing = self._api_get(
+                    ctx,
+                    f"/repos/{self._feedstock}/pulls?state=open&head={head}",
+                    env_var=self._env_var,
+                )
+            except Exception:
+                existing = []
+            if isinstance(existing, list) and existing:
+                first = existing[0]
+                if isinstance(first, dict):
+                    url = str(first.get("html_url", ""))
+                    return StepOutcome(
+                        step="publish",
+                        status="ok",
+                        detail=f"existing PR found: {url}",
+                    )
+
+            body: dict[str, object] = {
+                "title": f"bump to {self._version}",
+                "head": head,
+                "base": "main",
+                "body": (
+                    f"Automated bump by release-kit.\n\n"
+                    f"- version: `{self._version}`\n"
+                    f"- sha256:  `{self._sha256}`\n"
+                ),
+            }
+            try:
+                pr = self._api_post(
+                    ctx,
+                    f"/repos/{self._feedstock}/pulls",
+                    body,
+                    env_var=self._env_var,
+                )
+            except Exception as e:
+                raise PublishError(
+                    f"PR creation against {self._feedstock} failed: {e}",
+                    code="pr-create-failed",
+                ) from e
+
+        pr_url = str(pr.get("html_url", "")) if isinstance(pr, dict) else ""
+        return StepOutcome(
+            step="publish",
+            status="ok",
+            detail=f"PR opened: {pr_url}",
         )
 
     def verify(self, ctx: RunContext) -> StepOutcome:
