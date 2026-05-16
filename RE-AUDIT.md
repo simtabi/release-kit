@@ -87,31 +87,28 @@ Shipped at v0.1.0. `VALIDATION.md` lists deferred items:
 A path that respects the user's scope-discipline preference (no
 big-bang sweeps; ship small, verify, repeat):
 
-### Round 1 — quick wins (≤ 1 day total)
+### Round 1 — quick wins (≤ 1 day total) — ✅ complete
 
-1. **ai-config-kit Phase C** (memory clean) — single command + tests.
-2. **ai-config-kit Phase F** (selective install) — flag on existing
-   `install` verb.
-3. **ai-config-kit Phase G** (audit log) — structured JSONL appended
-   on every mutation.
-4. **ai-config-kit C3** (URL validation on `bootstrap --remote`).
-5. **ai-config-kit C4** (diff before `decisions apply --force`).
-6. **release-kit HEAD-probe in `doctor`** (small extension).
-7. **get-installer Phase L** (`.env` config loading, mirrors what
-   release-kit already does via `python-dotenv`).
+1. ✅ **ai-config-kit Phase C** (memory clean) — `4bd6e49`
+2. ✅ **ai-config-kit Phase F** (selective install) — `fca0562`
+3. ✅ **ai-config-kit Phase G** (audit log) — `cb5a9e4`
+4. ✅ **ai-config-kit C3** (URL validation on `bootstrap --remote`) — `74de453`
+5. ✅ **ai-config-kit C4** (diff before `decisions apply --force`) — `97761cb`
+6. ✅ **release-kit HEAD-probe in `doctor`** — `68cb02e`
+7. ✅ **get-installer Phase L** (`.env` config loading) — `59847bb`
 
-### Round 2 — substantial features (1–2 days each)
+### Round 2 — substantial features (1–2 days each) — 4/10 done
 
-8. **ai-config-kit Phase A** (schema-driven settings validation).
-9. **ai-config-kit Phase B** (pluggable decision packs from URLs).
-10. **ai-config-kit Phase D** (settings.json migrate).
-11. **ai-config-kit C1** (extract `decisions_*` from manager.py).
-12. **ai-config-kit C2** (`--json` output mode across CLI).
-13. **release-kit branch protection in `bootstrap-repo`**.
-14. **release-kit provenance / SBOM** as a config-driven block.
-15. **release-kit parallel publish**.
-16. **get-installer Phase F** (signed releases via sigstore).
-17. **get-installer Phase H** (hardening + audit pass).
+8. ⏳ **ai-config-kit Phase A** (schema-driven settings validation). Blocked: depends on Claude Code shipping an upstream JSON Schema we can fetch.
+9. ⏳ **ai-config-kit Phase B** (pluggable decision packs from URLs).
+10. ⏳ **ai-config-kit Phase D** (settings.json migrate).
+11. ⏳ **ai-config-kit C1** (extract `decisions_*` from manager.py). Pure refactor.
+12. ✅ **ai-config-kit C2** (`--json` output mode) — `647d712`
+13. ✅ **release-kit branch protection in `bootstrap-repo`** — `0cc6cd9`
+14. ✅ **release-kit provenance / SBOM** as a config-driven block — `ec6dbdc`
+15. ✅ **release-kit parallel publish** — `ff18d0e`
+16. ⏳ **get-installer Phase F** (signed releases via sigstore). Needs sigstore-python dep.
+17. ⏳ **get-installer Phase H** (hardening + audit pass). Broad scope.
 
 ### Round 3 — long-haul items (multi-day, optional now)
 
