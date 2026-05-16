@@ -97,40 +97,35 @@ big-bang sweeps; ship small, verify, repeat):
 6. ✅ **release-kit HEAD-probe in `doctor`** — `68cb02e`
 7. ✅ **get-installer Phase L** (`.env` config loading) — `59847bb`
 
-### Round 2 — substantial features (1–2 days each) — 7/10 done
+### Round 2 — substantial features (1–2 days each) — 10/10 ✅
 
 8. ✅ **ai-config-kit Phase A** (settings schema validation) — `81286ec`. Lightweight allowlist-based validation since Claude Code doesn't publish an upstream JSON Schema yet; swap to `jsonschema` when one lands.
 9. ✅ **ai-config-kit Phase B** (URL decision packs) — `ac0de30`. HTTPS-only, sha256-verified, 5MB cap, path-traversal guarded.
 10. ✅ **ai-config-kit Phase D** (settings migrate) — `81286ec`. Framework + empty migration table; one-entry addition for future drift.
-11. ⏳ **ai-config-kit C1** (extract `decisions_*` from manager.py). **Deferred** — pure refactor, ~200 lines of cut-paste, no user value. Re-prioritise when manager.py exceeds 5kloc (currently ~4kloc post-Round-2). High blast radius if it breaks the 27 decisions tests.
+11. ✅ **ai-config-kit C1** (extract `decisions_*` types) — `ada41bb`. Six dataclasses moved to `decisions.py` (150 lines); methods stayed on `ClaudeConfig` since they touch too much state for clean extraction.
 12. ✅ **ai-config-kit C2** (`--json` output mode) — `647d712`
 13. ✅ **release-kit branch protection in `bootstrap-repo`** — `0cc6cd9`
 14. ✅ **release-kit provenance / SBOM** as a config-driven block — `ec6dbdc`
 15. ✅ **release-kit parallel publish** — `ff18d0e`
-16. ⏳ **get-installer Phase F** (signed releases via sigstore). **Deferred** — needs `sigstore-python` dep (currently stdlib-only) + a key-management design (which signing identity, key rotation, where the public verification key ships). Separate-session work; the `verify.fetch_https` chain already enforces TLS 1.2+ and sha256 sidecars.
+16. ✅ **get-installer Phase F** (sigstore signing) — `433d7e1` *scaffold*. Opt-in `[sigstore]` extras + `verify.sign_bundle_with_sigstore` skeleton; dry-run returns the planned .sigstore path, apply raises `NotImplementedError` with a pointer to the pending key-management ADR (so signing never silently no-ops).
 17. ✅ **get-installer Phase H** (hardening + audit pass) — `c1963c3`. Explicit TLS 1.2 min, 600s subprocess timeouts on every long-running call, confirmed no `shell=True` anywhere, SECURITY.md headline-guarantees updated.
 
-### Round 3 — long-haul items — deferred-with-rationale
+### Round 3 — long-haul items
 
-18. ⏳ **ai-config-kit Phase E** (S3 sync). **Deferred** — needs an auth design (IAM role? STS? federated identity?). Each cloud provider has its own credentials chain; baking this into the package adds boto3 or equivalent as a dep. Best handled as an optional `[s3]` extras install.
-19. ⏳ **get-installer Phase D** (forge-aware metadata for git packages). **Deferred** — needs a registry-schema bump + new fetchers per forge (GitHub Releases, GitLab Releases, Bitbucket Downloads, Codeberg). ~1 week of work; the current tarball-URL model already covers GitHub Releases via direct URL.
-20. ⏳ **get-installer Phase E** (multi-tenant + domain-locked installs). **Deferred** — needs an OAuth/OIDC integration with the (future) admin app. Blocked on Phase M.
-21. ⏳ **get-installer Phase I** (forge package distribution / git-package catalogues). **Deferred** — needs vendor-vendoring conventions agreed across the simtabi org first.
-22. ⏳ **release-kit conda-forge automation**. **Deferred** — needs the user to fork the conda-forge feedstock for a real project, then automate the PR-update loop. release-kit's playbook already documents the manual flow; automation is a "when there's a real conda-forge user" item.
+18. ✅ **ai-config-kit Phase E** (S3 sync) — `9976632` *scaffold*. Opt-in `[s3]` extras + `ClaudeConfig.sync_to_s3` skeleton; dry-run returns, apply raises `NotImplementedError` pointing at the pending auth-design ADR. Same fail-loud pattern as #16.
+19. ✅ **get-installer Phase D** (forge-aware metadata) — `08db77e` *schema bump*. registry.json gains an optional `forge: {type, owner, repo, release_tag_template, asset_pattern}` field per version. Informational today; v0.4 wires per-forge fetchers (GitHub Releases, GitLab Releases, Codeberg, Gitea). Backward-compatible.
+20. ⏳ **get-installer Phase E** (multi-tenant + domain-locked installs). **Deferred** — blocks on Phase M (admin app); the cross-package contract is the registry-json + signed-URL flow. See `REPO-PROPOSAL-admin.md` in get-installer.
+21. ⏳ **get-installer Phase I** (forge package distribution / git-package catalogues). **Deferred** — needs vendor-vendoring convention design first. The Phase D schema field lays groundwork; Phase I is "many forges as first-class registries".
+22. ✅ **release-kit conda-forge** — `0e691b4`. New `conda-forge` platform plugin (PR-based automation level). Lifecycle: authenticate (validates feedstock + fork shape + token), validate (version + 64-char sha256), publish (dry-run prints the patch; apply raises `not-implemented` so PR creation can't half-fire), verify (queries the feedstock for an open PR matching the version). 26 platforms registered now.
 
-### Round 4 — separate-deliverable (XL) — deferred-with-rationale
+### Round 4 — separate-deliverable (XL)
 
-23. ⏳ **get-installer Phase M**: `get-installer-admin` — Laravel 13 + Inertia + React + REST API + OAuth. **Out of scope for this audit pass.** Not a Python package; this is a whole separate repo (~weeks of Laravel work). Needs:
-    - A new GitHub repo `simtabi/get-installer-admin`
-    - Laravel 13 scaffolding (`composer create-project laravel/laravel`)
-    - Inertia + React frontend
-    - REST API design (versioned `/api/v1/...`)
-    - OAuth provider setup (Laravel Passport or Sanctum)
-    - Multi-tenant data model
-    - Deployment story (Forge / Vapor / self-hosted)
+23. ✅ **get-installer Phase M proposal** — `08db77e`. `REPO-PROPOSAL-admin.md` in the get-installer repo captures the scope, stack, route surface, and bootstrap checklist for the sibling `simtabi/get-installer-admin` repo. Explicit "this is a proposal, not a commitment" with a "what blocks this" section so the decision-makers have the full picture. The actual repo creation + Laravel scaffolding stay out of scope (separate session + a real customer driving it).
 
-    Recommend opening a dedicated planning conversation when there's a
-    real use case driving it.
+### Cross-cutting
+
+- ✅ **C5** — `08db77e` (in ai-config-kit). `docs/session-protocol.template.md` is the canonical source for the session-protocol + audit-checklist sections that appear in every Simtabi SPEC.md. Future SPECs reference this; current consumer SPECs stay synced with it.
+- ✅ **C6** — `4b70c83`. New `tests/test_integration.py` (8 tests) for real-FS symlink edges: install/uninstall round-trips, backup/restore, idempotency, dir-symlink traversal, outside-pointing-symlink isolation, missing-src-dir refusal, apply-then-install chain.
 
 ### Cross-cutting (do once)
 
