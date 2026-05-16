@@ -121,6 +121,42 @@ def run_bootstrap(config: Config, *, apply: bool = False) -> RunReport:
                             StepOutcome("branch_protection", "failed", str(e), error=e)
                         )
                         report.failures.append(outcomes[-1])
+
+            # Environments + required reviewers (PUT /repos/.../environments/<name>)
+            for env_name, env_body in plat_obj._environments.items():
+                env_path = f"/repos/{plat_obj._repo}/environments/{env_name}"
+                if ctx.dry_run:
+                    outcomes.append(
+                        StepOutcome(
+                            f"environment:{env_name}",
+                            "dry-run",
+                            f"would PUT {env_path}",
+                        )
+                    )
+                    continue
+                try:
+                    plat_obj._api_put(
+                        ctx, env_path, json=env_body, env_var=plat_obj._env_var
+                    )
+                    reviewers = env_body.get("reviewers")
+                    n_reviewers = len(reviewers) if isinstance(reviewers, list) else 0
+                    outcomes.append(
+                        StepOutcome(
+                            f"environment:{env_name}",
+                            "ok",
+                            f"applied (reviewers={n_reviewers})",
+                        )
+                    )
+                except PlatformError as e:
+                    outcomes.append(
+                        StepOutcome(
+                            f"environment:{env_name}",
+                            "failed",
+                            str(e),
+                            error=e,
+                        )
+                    )
+                    report.failures.append(outcomes[-1])
         else:
             outcomes.append(
                 StepOutcome("topics", "skipped", "bootstrap not yet implemented for this host")

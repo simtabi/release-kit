@@ -340,6 +340,76 @@ def test_bootstrap_apply_calls_branch_protection_endpoint(
     assert body.get("enforce_admins") is True
 
 
+def test_bootstrap_dry_run_environments(
+    clean_env: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("GITHUB_TOKEN", "ghp_x")
+    cfg = _make_config(
+        github={
+            "enabled": True,
+            "auth": "token",
+            "repo": "o/r",
+            "tag": "v1.0.0",
+            "environments": {
+                "pypi": {
+                    "wait_timer": 0,
+                    "reviewers": [{"type": "User", "id": 12345}],
+                },
+                "staging": {"wait_timer": 5},
+            },
+        }
+    )
+    report = run_bootstrap(cfg, apply=False)
+    steps = report.target_outcomes["github"]
+    env_steps = [s for s in steps if s.step.startswith("environment:")]
+    assert len(env_steps) == 2
+    assert all(s.status == "dry-run" for s in env_steps)
+    env_names = {s.step for s in env_steps}
+    assert env_names == {"environment:pypi", "environment:staging"}
+
+
+@respx.mock
+def test_bootstrap_apply_calls_environment_endpoint(
+    clean_env: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("GITHUB_TOKEN", "ghp_x")
+    route = respx.put(
+        "https://api.github.com/repos/o/r/environments/pypi"
+    ).mock(return_value=httpx.Response(200, json={"name": "pypi"}))
+    cfg = _make_config(
+        github={
+            "enabled": True,
+            "auth": "token",
+            "repo": "o/r",
+            "tag": "v1.0.0",
+            "environments": {
+                "pypi": {
+                    "wait_timer": 0,
+                    "reviewers": [{"type": "User", "id": 12345}],
+                },
+            },
+        }
+    )
+    report = run_bootstrap(cfg, apply=True)
+    steps = report.target_outcomes["github"]
+    env_step = next(s for s in steps if s.step == "environment:pypi")
+    assert env_step.status == "ok"
+    assert route.called
+
+
+def test_bootstrap_no_environments_emits_no_step(
+    clean_env: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Without an `environments` block, no environment:* steps emit."""
+    monkeypatch.setenv("GITHUB_TOKEN", "ghp_x")
+    cfg = _make_config(
+        github={"enabled": True, "auth": "token", "repo": "o/r", "tag": "v1.0.0"}
+    )
+    report = run_bootstrap(cfg, apply=False)
+    steps = report.target_outcomes["github"]
+    assert not any(s.step.startswith("environment:") for s in steps)
+
+
 def test_bootstrap_no_branch_protection_emits_no_step(
     clean_env: None, monkeypatch: pytest.MonkeyPatch
 ) -> None:

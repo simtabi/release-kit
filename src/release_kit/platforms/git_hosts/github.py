@@ -63,6 +63,24 @@ class GitHub(GitHubApiMixin, GitHost):
         self._branch_protection: dict[str, object] | None = (
             dict(bp) if isinstance(bp, dict) else None
         )
+        # Optional declarative environments + required reviewers.
+        # Shape (mirrors PUT /repos/{owner}/{repo}/environments/{name}):
+        #   environments:
+        #     pypi:
+        #       wait_timer: 0
+        #       prevent_self_review: true
+        #       reviewers:
+        #         - { type: User, id: 12345 }
+        #         - { type: Team, id: 67890 }
+        #       deployment_branch_policy:
+        #         protected_branches: false
+        #         custom_branch_policies: true
+        envs = extras.get("environments")
+        self._environments: dict[str, dict[str, object]] = (
+            {str(k): dict(v) for k, v in envs.items() if isinstance(v, dict)}
+            if isinstance(envs, dict)
+            else {}
+        )
 
     def authenticate(self, ctx: RunContext) -> StepOutcome:
         if not self._repo or "/" not in self._repo:
