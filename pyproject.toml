@@ -110,6 +110,7 @@ bitbucket                = "release_kit.platforms.git_hosts.bitbucket:BitbucketC
 bitbucket-dc             = "release_kit.platforms.git_hosts.bitbucket_dc:BitbucketDataCenter"
 gitea                    = "release_kit.platforms.git_hosts.gitea:Gitea"
 azure-devops             = "release_kit.platforms.git_hosts.azure_devops:AzureDevOps"
+conda-forge              = "release_kit.platforms.registries.conda_forge:CondaForge"
 
 [tool.hatch.build]
 include = [
