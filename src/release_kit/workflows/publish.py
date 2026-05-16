@@ -43,6 +43,27 @@ def run_publish(
     classes = load_platform_classes()
     pick = list(selected) if selected is not None else list(config.enabled_targets().keys())
 
+    # Provenance pre-flight: enforce SBOM presence before any target
+    # gets to do work. A single up-front check beats discovering the
+    # missing file mid-flight on target #5.
+    prov = config.policies.provenance
+    if prov is not None and prov.require_sbom:
+        from pathlib import Path
+        sbom = Path(prov.sbom_path)
+        if not sbom.is_file():
+            outcome = StepOutcome(
+                step="provenance",
+                status="failed",
+                detail=(
+                    f"SBOM not found at {sbom} (policies.provenance.require_sbom=true); "
+                    f"generate with cyclonedx-py or syft and re-run"
+                ),
+            )
+            report = RunReport()
+            report.target_outcomes["<provenance>"] = [outcome]
+            report.failures.append(outcome)
+            return report
+
     if config.policies.parallel_publish:
         return _run_parallel(config, pick, classes, apply=apply)
 

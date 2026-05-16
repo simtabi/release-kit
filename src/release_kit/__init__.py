@@ -34,7 +34,13 @@ from __future__ import annotations
 
 from importlib import metadata as _md
 
-from .core.config import Config, PolicyConfig, ProjectConfig, TargetConfig
+from .core.config import (
+    Config,
+    PolicyConfig,
+    ProjectConfig,
+    ProvenanceConfig,
+    TargetConfig,
+)
 from .core.errors import (
     AuthenticationError,
     ConfigError,
@@ -67,6 +73,7 @@ __all__ = [
     "PlatformError",
     "PolicyConfig",
     "ProjectConfig",
+    "ProvenanceConfig",
     "PublishError",
     "Registry",
     "ReleaseKitError",

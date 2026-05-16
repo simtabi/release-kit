@@ -75,6 +75,28 @@ class TargetConfig(BaseModel):
     auth: Literal["oidc", "token", "cli", "none"] = "oidc"
 
 
+class ProvenanceConfig(BaseModel):
+    """Provenance / SBOM policy.
+
+    release-kit doesn't *generate* SBOMs (use ``cyclonedx-py`` or
+    ``syft`` for that). It enforces presence + attaches the file to
+    the GitHub release when one is configured.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    require_sbom: bool = False
+    """When True, run_publish refuses to start unless ``sbom_path`` exists."""
+
+    sbom_path: str = "dist/sbom.cdx.json"
+    """Where the externally-generated SBOM file lives, relative to cwd."""
+
+    attach_to_github_release: bool = True
+    """When True and a `github` target is enabled, the SBOM is attached
+    to the release alongside the dist artifacts (v0.2 wiring; today this
+    is read-but-not-acted-on by the workflow)."""
+
+
 class PolicyConfig(BaseModel):
     """Global publish-time policies enforced by the runner."""
 
@@ -106,6 +128,9 @@ class PolicyConfig(BaseModel):
 
     max_workers: int = Field(default=4, ge=1, le=32)
     """Worker count when parallel_publish is True (1..32; default: 4)."""
+
+    provenance: ProvenanceConfig | None = None
+    """Provenance / SBOM policy. None = no check; otherwise see ProvenanceConfig."""
 
 
 class Config(BaseModel):

@@ -80,6 +80,84 @@ def test_publish_continue_on_error_proceeds_to_next(clean_env: None) -> None:
 
 
 # ---------------------------------------------------------------------------
+# publish — provenance pre-flight
+# ---------------------------------------------------------------------------
+
+
+def test_publish_provenance_require_sbom_missing_fails_fast(
+    clean_env: None, tmp_path
+) -> None:
+    """require_sbom=True with no file aborts before any target runs."""
+    from release_kit.core.config import ProvenanceConfig
+
+    cfg = Config(
+        project=ProjectConfig(name="x"),
+        targets={
+            "pypi": TargetConfig.model_validate(
+                {"enabled": True, "auth": "oidc", "package": "x"}
+            ),
+        },
+        policies=PolicyConfig(
+            provenance=ProvenanceConfig(
+                require_sbom=True,
+                sbom_path=str(tmp_path / "does-not-exist.json"),
+            ),
+        ),
+    )
+    report = run_publish(cfg, apply=False)
+    assert report.failures
+    assert any(
+        s.step == "provenance" and "SBOM not found" in s.detail
+        for s in report.failures
+    )
+    # No real targets ran:
+    assert "pypi" not in report.target_outcomes
+
+
+def test_publish_provenance_require_sbom_present_proceeds(
+    clean_env: None, tmp_path
+) -> None:
+    """When the SBOM file exists, publish proceeds normally."""
+    from release_kit.core.config import ProvenanceConfig
+
+    sbom = tmp_path / "sbom.cdx.json"
+    sbom.write_text('{"bomFormat":"CycloneDX","specVersion":"1.5"}', encoding="utf-8")
+
+    cfg = Config(
+        project=ProjectConfig(name="x"),
+        targets={
+            "pypi": TargetConfig.model_validate(
+                {"enabled": True, "auth": "oidc", "package": "x"}
+            ),
+        },
+        policies=PolicyConfig(
+            provenance=ProvenanceConfig(
+                require_sbom=True,
+                sbom_path=str(sbom),
+            ),
+        ),
+    )
+    report = run_publish(cfg, apply=False)
+    # Provenance preflight succeeded -> pypi target reached
+    assert "pypi" in report.target_outcomes
+
+
+def test_publish_no_provenance_skips_check(clean_env: None) -> None:
+    """policies.provenance=None means no SBOM check."""
+    cfg = Config(
+        project=ProjectConfig(name="x"),
+        targets={
+            "pypi": TargetConfig.model_validate(
+                {"enabled": True, "auth": "oidc", "package": "x"}
+            ),
+        },
+        policies=PolicyConfig(),
+    )
+    report = run_publish(cfg, apply=False)
+    assert not any(s.step == "provenance" for s in report.failures)
+
+
+# ---------------------------------------------------------------------------
 # publish — parallel mode
 # ---------------------------------------------------------------------------
 

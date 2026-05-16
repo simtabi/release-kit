@@ -78,6 +78,36 @@ Global publish-time policies enforced by the runner.
 | `allow_token_auth` | `bool` | `false` | When `false`, refuse to fall back from OIDC to a token without `--allow-token-auth`. |
 | `parallel_publish` | `bool` | `false` | When `true`, run target lifecycles concurrently in a thread pool. Steps within a target stay sequential; only the cross-target loop parallelises. |
 | `max_workers` | `int` (1..32) | `4` | Worker count when `parallel_publish` is on. |
+| `provenance` | `null` \| object | `null` | Provenance/SBOM block — see below. |
+
+### `policies.provenance`
+
+```json
+"provenance": {
+  "require_sbom": true,
+  "sbom_path": "dist/sbom.cdx.json",
+  "attach_to_github_release": true
+}
+```
+
+| Field | Default | Purpose |
+|---|---|---|
+| `require_sbom` | `false` | When `true`, `release-kit publish` refuses to start unless `sbom_path` exists. |
+| `sbom_path` | `dist/sbom.cdx.json` | Where the externally-generated SBOM file lives, relative to cwd. |
+| `attach_to_github_release` | `true` | When `true` and a `github` target is enabled, the SBOM is attached to the release. |
+
+release-kit doesn't *generate* SBOMs. Generate one externally before
+publish — typical choices:
+
+```bash
+pip install cyclonedx-bom
+cyclonedx-py environment -o dist/sbom.cdx.json
+# or, for a single project:
+cyclonedx-py poetry -o dist/sbom.cdx.json
+```
+
+Then run `release-kit publish --apply` and the preflight enforces
+the SBOM is present.
 
 ## Token resolution
 

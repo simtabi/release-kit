@@ -93,8 +93,10 @@ Empty output = all good.
   remain for a follow-up).
 - A web dashboard / GitHub Action for unattended scheduled
   rotations.
-- Provenance/SBOM emission as a first-class config block. Today
-  npm publishes use `--provenance` when the target sets it.
+- SBOM generation is delegated to external tools (cyclonedx-py,
+  syft). release-kit enforces presence via
+  `policies.provenance.require_sbom` and (future) attaches it to
+  the GitHub release.
 - conda-forge feedstock pinging (the playbook page describes the
   manual flow; full automation requires a feedstock fork).
 
