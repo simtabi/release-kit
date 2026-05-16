@@ -110,6 +110,33 @@ def test_publish_dry_run_does_not_execute(tmp_path: Path, monkeypatch: pytest.Mo
 
 
 @respx.mock
+def test_reach_probe_200_returns_ok() -> None:
+    plat = _make_pypi(project_name="x")
+    respx.head("https://pypi.org/simple/").mock(return_value=httpx.Response(200))
+    out = plat.reach_probe(_ctx())
+    assert out.status == "ok"
+    assert "200" in out.detail
+
+
+@respx.mock
+def test_reach_probe_5xx_returns_failed() -> None:
+    plat = _make_pypi(project_name="x")
+    respx.head("https://pypi.org/simple/").mock(return_value=httpx.Response(503))
+    out = plat.reach_probe(_ctx())
+    assert out.status == "failed"
+    assert "503" in out.detail
+
+
+@respx.mock
+def test_reach_probe_network_error_returns_failed() -> None:
+    plat = _make_pypi(project_name="x")
+    respx.head("https://pypi.org/simple/").mock(side_effect=httpx.ConnectError("nope"))
+    out = plat.reach_probe(_ctx())
+    assert out.status == "failed"
+    assert "unreachable" in out.detail
+
+
+@respx.mock
 def test_verify_200_returns_ok() -> None:
     plat = _make_pypi(project_name="simtabi-release-kit")
     respx.get("https://pypi.org/pypi/simtabi-release-kit/json").mock(

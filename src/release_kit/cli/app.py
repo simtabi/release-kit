@@ -197,8 +197,16 @@ def doctor(
         try:
             auth_out = plat.authenticate(ctx)
             val_out = plat.validate(ctx)
-            detail = f"{auth_out.detail}; {val_out.detail}"
-            status = "[green]GREEN[/green]"
+            reach_out = plat.reach_probe(ctx)
+            detail_parts = [auth_out.detail, val_out.detail]
+            if reach_out.status != "skipped":
+                detail_parts.append(f"reach: {reach_out.detail}")
+            detail = "; ".join(p for p in detail_parts if p)
+            if reach_out.status == "failed":
+                status = "[red]RED[/red]"
+                any_red = True
+            else:
+                status = "[green]GREEN[/green]"
         except ReleaseKitError as e:
             detail = str(e).splitlines()[0]
             status = (

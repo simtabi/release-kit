@@ -169,6 +169,23 @@ class Platform(ABC):
         """
         return StepOutcome(step="rollback", status="skipped", detail="no rollback implemented")
 
+    def reach_probe(self, ctx: RunContext) -> StepOutcome:
+        """
+        Network reachability probe — does the registry / host respond?
+
+        Used by ``release-kit doctor`` to escalate AMBER -> RED when the
+        registry endpoint is unreachable from the current machine. No
+        authentication, no mutation. A 5-second HEAD or short GET on
+        the platform's documented base URL is the contract.
+
+        Default implementation returns ``skipped`` so platforms without
+        a sensible reach endpoint opt out cheaply.
+
+        @param  ctx
+        @return StepOutcome  step="reach"
+        """
+        return StepOutcome(step="reach", status="skipped", detail="no reach probe implemented")
+
     # ---- factory -----------------------------------------------------
 
     @classmethod

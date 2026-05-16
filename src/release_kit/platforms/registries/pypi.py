@@ -192,6 +192,26 @@ class PyPI(Registry):
             ) from e
         return StepOutcome(step="publish", status="ok", detail="uploaded via twine")
 
+    def reach_probe(self, ctx: RunContext) -> StepOutcome:
+        """HEAD-probe PyPI's index URL with a 5-second timeout."""
+        base = self._TEST_API if self._repository == "testpypi" else self._PROD_API
+        try:
+            with httpx.Client(timeout=5.0) as client:
+                r = client.head(f"{base}/simple/", follow_redirects=True)
+        except httpx.HTTPError as e:
+            return StepOutcome(
+                step="reach",
+                status="failed",
+                detail=f"unreachable: {e}",
+            )
+        if r.status_code >= 500:
+            return StepOutcome(
+                step="reach",
+                status="failed",
+                detail=f"{base} returned {r.status_code}",
+            )
+        return StepOutcome(step="reach", status="ok", detail=f"{base} -> {r.status_code}")
+
     def verify(self, ctx: RunContext) -> StepOutcome:
         """
         Confirm the latest version is live on PyPI.
