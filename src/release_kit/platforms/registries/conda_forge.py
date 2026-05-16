@@ -242,7 +242,7 @@ class CondaForge(GitHubApiMixin, Registry):
             except Exception:
                 existing = []
             if isinstance(existing, list) and existing:
-                first = existing[0]
+                first: object = existing[0]
                 if isinstance(first, dict):
                     url = str(first.get("html_url", ""))
                     return StepOutcome(
