@@ -97,32 +97,40 @@ big-bang sweeps; ship small, verify, repeat):
 6. ✅ **release-kit HEAD-probe in `doctor`** — `68cb02e`
 7. ✅ **get-installer Phase L** (`.env` config loading) — `59847bb`
 
-### Round 2 — substantial features (1–2 days each) — 4/10 done
+### Round 2 — substantial features (1–2 days each) — 7/10 done
 
-8. ⏳ **ai-config-kit Phase A** (schema-driven settings validation). Blocked: depends on Claude Code shipping an upstream JSON Schema we can fetch.
-9. ⏳ **ai-config-kit Phase B** (pluggable decision packs from URLs).
-10. ⏳ **ai-config-kit Phase D** (settings.json migrate).
-11. ⏳ **ai-config-kit C1** (extract `decisions_*` from manager.py). Pure refactor.
+8. ✅ **ai-config-kit Phase A** (settings schema validation) — `81286ec`. Lightweight allowlist-based validation since Claude Code doesn't publish an upstream JSON Schema yet; swap to `jsonschema` when one lands.
+9. ✅ **ai-config-kit Phase B** (URL decision packs) — `ac0de30`. HTTPS-only, sha256-verified, 5MB cap, path-traversal guarded.
+10. ✅ **ai-config-kit Phase D** (settings migrate) — `81286ec`. Framework + empty migration table; one-entry addition for future drift.
+11. ⏳ **ai-config-kit C1** (extract `decisions_*` from manager.py). **Deferred** — pure refactor, ~200 lines of cut-paste, no user value. Re-prioritise when manager.py exceeds 5kloc (currently ~4kloc post-Round-2). High blast radius if it breaks the 27 decisions tests.
 12. ✅ **ai-config-kit C2** (`--json` output mode) — `647d712`
 13. ✅ **release-kit branch protection in `bootstrap-repo`** — `0cc6cd9`
 14. ✅ **release-kit provenance / SBOM** as a config-driven block — `ec6dbdc`
 15. ✅ **release-kit parallel publish** — `ff18d0e`
-16. ⏳ **get-installer Phase F** (signed releases via sigstore). Needs sigstore-python dep.
-17. ⏳ **get-installer Phase H** (hardening + audit pass). Broad scope.
+16. ⏳ **get-installer Phase F** (signed releases via sigstore). **Deferred** — needs `sigstore-python` dep (currently stdlib-only) + a key-management design (which signing identity, key rotation, where the public verification key ships). Separate-session work; the `verify.fetch_https` chain already enforces TLS 1.2+ and sha256 sidecars.
+17. ✅ **get-installer Phase H** (hardening + audit pass) — `c1963c3`. Explicit TLS 1.2 min, 600s subprocess timeouts on every long-running call, confirmed no `shell=True` anywhere, SECURITY.md headline-guarantees updated.
 
-### Round 3 — long-haul items (multi-day, optional now)
+### Round 3 — long-haul items — deferred-with-rationale
 
-18. **ai-config-kit Phase E** (S3 sync — needs auth design).
-19. **get-installer Phase D** (forge-aware metadata).
-20. **get-installer Phase E** (multi-tenant + domain-locked).
-21. **get-installer Phase I** (forge package distribution).
-22. **release-kit conda-forge automation** (needs feedstock fork).
+18. ⏳ **ai-config-kit Phase E** (S3 sync). **Deferred** — needs an auth design (IAM role? STS? federated identity?). Each cloud provider has its own credentials chain; baking this into the package adds boto3 or equivalent as a dep. Best handled as an optional `[s3]` extras install.
+19. ⏳ **get-installer Phase D** (forge-aware metadata for git packages). **Deferred** — needs a registry-schema bump + new fetchers per forge (GitHub Releases, GitLab Releases, Bitbucket Downloads, Codeberg). ~1 week of work; the current tarball-URL model already covers GitHub Releases via direct URL.
+20. ⏳ **get-installer Phase E** (multi-tenant + domain-locked installs). **Deferred** — needs an OAuth/OIDC integration with the (future) admin app. Blocked on Phase M.
+21. ⏳ **get-installer Phase I** (forge package distribution / git-package catalogues). **Deferred** — needs vendor-vendoring conventions agreed across the simtabi org first.
+22. ⏳ **release-kit conda-forge automation**. **Deferred** — needs the user to fork the conda-forge feedstock for a real project, then automate the PR-update loop. release-kit's playbook already documents the manual flow; automation is a "when there's a real conda-forge user" item.
 
-### Round 4 — separate-deliverable (XL)
+### Round 4 — separate-deliverable (XL) — deferred-with-rationale
 
-23. **get-installer Phase M**: `get-installer-admin` — Laravel 13 +
-    Inertia + React + REST API + OAuth. Not a Python package; this
-    is a whole new repo.
+23. ⏳ **get-installer Phase M**: `get-installer-admin` — Laravel 13 + Inertia + React + REST API + OAuth. **Out of scope for this audit pass.** Not a Python package; this is a whole separate repo (~weeks of Laravel work). Needs:
+    - A new GitHub repo `simtabi/get-installer-admin`
+    - Laravel 13 scaffolding (`composer create-project laravel/laravel`)
+    - Inertia + React frontend
+    - REST API design (versioned `/api/v1/...`)
+    - OAuth provider setup (Laravel Passport or Sanctum)
+    - Multi-tenant data model
+    - Deployment story (Forge / Vapor / self-hosted)
+
+    Recommend opening a dedicated planning conversation when there's a
+    real use case driving it.
 
 ### Cross-cutting (do once)
 
