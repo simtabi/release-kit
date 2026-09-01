@@ -13,7 +13,7 @@ releases. Older releases receive critical-severity fixes only.
 
 **Do not open a public GitHub issue for security problems.**
 
-Disclosure goes to `opensource@simtabi.com`. Include:
+Disclosure goes to `security@simtabi.com`. Include:
 
 - A description of the vulnerability and its impact.
 - Steps to reproduce (minimum proof-of-concept).
