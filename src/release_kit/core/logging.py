@@ -21,6 +21,23 @@ from typing import Any, cast
 import structlog
 
 
+class _CurrentStderr:
+    """
+    Writes to whatever ``sys.stderr`` is at the time of the write.
+
+    ``PrintLoggerFactory(file=sys.stderr)`` captures the stream object that is current when
+    ``configure()`` runs. With ``cache_logger_on_first_use`` the loggers keep it, so once
+    that stream is replaced and closed (a test harness capturing output, a host redirecting
+    stderr) every later log call raises "I/O operation on closed file".
+    """
+
+    def write(self, message: str) -> int:
+        return sys.stderr.write(message)
+
+    def flush(self) -> None:
+        sys.stderr.flush()
+
+
 def configure(level: str = "INFO", *, json: bool = False) -> None:
     """
     Configure structlog + stdlib logging for the process.
@@ -53,7 +70,7 @@ def configure(level: str = "INFO", *, json: bool = False) -> None:
     structlog.configure(
         processors=processors,
         wrapper_class=structlog.make_filtering_bound_logger(log_level),
-        logger_factory=structlog.PrintLoggerFactory(file=sys.stderr),
+        logger_factory=structlog.PrintLoggerFactory(file=_CurrentStderr()),
         cache_logger_on_first_use=True,
     )
 
