@@ -15,7 +15,7 @@ The preferred channel is GitHub private vulnerability reporting: open a private 
 
 **Do not open a public GitHub issue for security problems.**
 
-Disclosure goes to `security@simtabi.com`. Include:
+Whichever channel you use, include:
 
 - A description of the vulnerability and its impact.
 - Steps to reproduce (minimum proof-of-concept).
