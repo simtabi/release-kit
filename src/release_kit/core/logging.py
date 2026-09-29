@@ -21,21 +21,17 @@ from typing import Any, cast
 import structlog
 
 
-class _CurrentStderr:
+def _stderr_logger(*_args: Any) -> structlog.PrintLogger:
     """
-    Writes to whatever ``sys.stderr`` is at the time of the write.
+    A PrintLogger on whatever ``sys.stderr`` is when a message is logged.
 
-    ``PrintLoggerFactory(file=sys.stderr)`` captures the stream object that is current when
-    ``configure()`` runs. With ``cache_logger_on_first_use`` the loggers keep it, so once
-    that stream is replaced and closed (a test harness capturing output, a host redirecting
-    stderr) every later log call raises "I/O operation on closed file".
+    ``PrintLoggerFactory(file=sys.stderr)`` captured the stream that was current when
+    ``configure()`` ran, and ``cache_logger_on_first_use`` kept it. Once that stream was
+    replaced and closed (a test harness capturing output, a host redirecting stderr),
+    every later log call raised "I/O operation on closed file". Resolving the stream here,
+    with caching off, follows stderr wherever it currently points.
     """
-
-    def write(self, message: str) -> int:
-        return sys.stderr.write(message)
-
-    def flush(self) -> None:
-        sys.stderr.flush()
+    return structlog.PrintLogger(file=sys.stderr)
 
 
 def configure(level: str = "INFO", *, json: bool = False) -> None:
@@ -70,8 +66,9 @@ def configure(level: str = "INFO", *, json: bool = False) -> None:
     structlog.configure(
         processors=processors,
         wrapper_class=structlog.make_filtering_bound_logger(log_level),
-        logger_factory=structlog.PrintLoggerFactory(file=_CurrentStderr()),
-        cache_logger_on_first_use=True,
+        logger_factory=_stderr_logger,
+        # Off on purpose: a cached logger keeps the stderr it was created with.
+        cache_logger_on_first_use=False,
     )
 
 
