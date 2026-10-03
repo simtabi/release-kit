@@ -32,7 +32,18 @@ release-kit publish --apply   # dry-run is the default
   `[project.entry-points."release_kit.platforms"]` without
   forking.
 
-## Quick start
+## Quick start guide and usage
+
+### Getting started
+
+1. Run `release-kit init`. It writes `release.json` and `.env-example` to the current
+   directory and appends `.env` to `.gitignore`.
+2. Edit `release.json`: set the project name and enable the targets you want.
+3. Once per registry, set up its trusted publisher or token, as the target's page in
+   [`docs/playbook/`](docs/playbook/) describes.
+4. Run `release-kit doctor`. Every target should show GREEN; RED blocks the publish.
+
+### Usage
 
 ```bash
 # 1. Install
