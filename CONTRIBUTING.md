@@ -1,5 +1,7 @@
 # Contributing to simtabi-release-kit
 
+Where this file is silent, the [Simtabi contributing guide](https://github.com/simtabi/.github/blob/HEAD/CONTRIBUTING.md) applies.
+
 ## Read first
 
 - [`README.md`](README.md) — what this package is, install, quickstart
