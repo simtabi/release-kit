@@ -35,6 +35,9 @@ jobs:
           retention-days: 7
 
   publish-pypi:
+    # PyPI publishing is paused until the owner sets the repository (or org)
+    # variable PUBLISH_PYPI to 'true'. Tags still build and release on GitHub.
+    if: ${{ vars.PUBLISH_PYPI == 'true' }}
     needs: build
     runs-on: ubuntu-latest
     environment:
