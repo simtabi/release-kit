@@ -25,7 +25,7 @@ generic fallback → keyring) and found nothing.
 **Fix**: Set the platform's primary env var, e.g.:
 
 ```bash
-export PYPI_TOKEN="pypi-AgEI..."
+export PYPI_TOKEN="<your-pypi-api-token>"
 ```
 
 …or rotate via `release-kit rotate-tokens --platform pypi` to store
